@@ -1,8 +1,15 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # Missing values
 
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(naniar)
+library(extracat)
+library(readr)
 data = read.csv("Data_Extract_From_Jobs.csv")
 data <- data %>% replace_with_na_all(condition = ~.x == "..")
 data <- data %>% filter(row_number() <= n() - 5)
@@ -28,6 +35,7 @@ ggplot(data, aes(x = missing)) +
   geom_bar() +
   facet_wrap(~ Country.Code)
 ```
+
 
 A similar pattern seems to hold for the individual countries, where 0 is the most common number of missing values. However, for India, Japan, and South Africa, the second most common number of missing values are 4, 1, and 2, respectively. Since these are the countries with "unusual" distributions of missing values, it seems likely that these are the countries that cause the unusual number of missing values in year 2013 and 2016.
 
@@ -70,3 +78,18 @@ colSums(is.na(world_missing))
 ```
 
 In general, the world wide statistics are fairly consistent, with slightly more missing at 2016. It seems that the increase in missing values in 2016 is a world wide phenomenon for some reason.
+
+
+In our another file, we do a whole missing value checking. We only keep the value which are included in years, since all categorical varibles do not have missing value.
+```{r}
+library(extracat)
+library(readr)
+whole_data <- read.csv("whole_Data.csv",na.strings='..')
+my_whole_data <- whole_data %>% dplyr::select(-"Series.Code",)
+names(my_whole_data)[1] <- 'Country'
+my_whole_data <- my_whole_data %>% dplyr::select(-"Country",-"Series.Name")
+visna(my_whole_data)
+```
+
+This graph shows as the time gets closer, the missing values are getting more. So we need to choose years data from the ahead.
+

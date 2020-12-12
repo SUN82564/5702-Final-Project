@@ -1,13 +1,36 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Data transformation
 
 
-```{r message=FALSE, warning=FALSE}
-library(readr)
-data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
-cleaned_data <- na.omit(data)
-```
-  \
-Fortunately, the data which the website provided is in xlsx and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. After finishing loading the data, we found that the data is already tidy. By now, we only need to change the missing value into *NA* and remove those *NA* values. \
+Fortunately, the data which the website provided as xlsx files and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. Although the data is already tidy, we still need to remove the missing value and transform our data to a more plot friendly data.
 
-After starting the project, we probably need to do more data transformation in order to display the interactive visualization and show complex information in d3.
-  \
+Data transformation steps:
+
+
+  1. We rename most column into more readable name. In our data, we rename the column "Country name" to "Country," "X2012..YR2012." to "2012" and make other year columns into similar transformation.
+  
+  
+  
+  2. Remove duplicate columns such as "Series Code", since it is showing the same information as "Series."
+  
+  
+  
+  3. Use *dylpr::filter* and *select* to change which category variables are needed. In our project, we select out the value of population, Country, labor force, gdp, and education.
+  
+  
+  4. Using *pivot_longer* to pivot data from wide to long in order to make plotting graph easier and facet graph.
+  
+  
+  5. Make number value numerical and factorize some category variables. Also re-level and rename the levels of those category variables using *fct_relevel* and *fct_recode*.
+  
+  
+  6. Remove missing values. If the missing value is correlated with time, choose approximate value. In our project, we use *apply* and *na.locf* from package *zoo* to move the employment rate of different education level from Brazil in 2011 to 2012.
+  
+  
+  7. For making a world graph, we need to import the world data from package *World* and merge the data into our data set. In order to merge the data, we need to use *standardizeCountry* from *rangeBuilder* to standardize Countries name. Then we matched the world map data with our project data. 
+  
+  
