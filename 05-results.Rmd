@@ -1,5 +1,5 @@
 
-# Chapter 5 Factors which effects labor force and employment
+# Chapter 5 Results
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
 library(tidyverse)
@@ -28,7 +28,7 @@ names(my_whole_data)[1] <- 'Country'
 ```
 
 
-## 1 Developed and Developing country
+## Developed and Developing country
 
 First we need to make a definition of a developed country and developing country. A developed country is a country has advanced technological infrastructure and high standard of living comparing to other less developed country and those less developed countries are called developing countries. However, there is no specific standard for classifying developed country. In our project, we define a country with GDP per capita over than 12,000 dollar is a developed country and less than 12,000 dollar is a developing country.
 
@@ -55,7 +55,7 @@ ggplot(df_gdp,aes(x = YR2012, fct_reorder(Country,YR2012)))+
 
 Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
 
-## 2 Population and labor force
+##  Population and labor force
 
 ### Population structures between developing and developed countries
 
@@ -72,7 +72,6 @@ pop_data$Population <- fct_relevel(pop_data$Population, 'Population ages 65 and 
 ```{r warning=FALSE, echo=FALSE, fig.width=9}
 library(ggplot2)
 pop_data <- pop_data %>%
-  group_by(`Country Name`, 'Population') %>%
   mutate(proportion = prop.table(`2016 [YR2016]`)) %>%
   ungroup()
 
@@ -121,7 +120,7 @@ Labor force participation Rate is defined as the percentage of people who partic
 
 ### Gender analysis base on participation rate 
 
-```{r warning=FALSE, echo=FALSE}
+```{r warning=FALSE, echo=FALSE, fig.width=10}
 df2 <- labor_par_data %>% filter(`Labor Force Group` %in% c('Female', 'Male') )
 df2 <- df2[c('Country Name', 'Labor Force Group', '2012 [YR2012]','2013 [YR2013]', '2014 [YR2014]','2015 [YR2015]', '2016 [YR2016]')]
 df2 <- df2 %>% gather('Years', 'Laborforce Participation Rate', -`Country Name`, -`Labor Force Group`)
@@ -145,7 +144,7 @@ ggplot(df2, aes(`Years`, `Laborforce Participation Rate`, group = `Labor Force G
 If we take a deeper look into the contribution structure and compare the participation rates by genders, we can see from this graph that they vary across different countries a lot. The specific gender group shows the proportion of working people in the its gender group. While China, United States and South Africa show narrower gap between male and female, India has the widest gap followed by Japan. From this observation, whether a country has  larger or smaller gap between participation rates of genders does not depend on its developing state. The wide gap for Japan and India could be explained by their cultural reasons, but we can also observe that male across these countries and the world has higher proportion of working people. If we were to narrow this difference between genders, there is definitely a lot of room to do. 
 
 
-## 2 Import and Export
+## Import and Export
 
 
 ```{r  warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
@@ -245,7 +244,7 @@ spine_data <- cleaned_data %>% rename(
   '2016' = X2016..YR2016.,
 ) %>%
   filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Exports of goods and services (% of GDP)', 'Fuel exports (% of merchandise exports)', 'High-technology exports (% of manufactured exports)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)')) %>%
-  select(Country.Name, Series.Name, '2016')
+ dplyr::select(Country.Name, Series.Name, '2016')
 
 spine_data$Series.Name <- fct_recode(spine_data$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 
                                       'Exports' = 'Exports of goods and services (% of GDP)',
@@ -283,34 +282,11 @@ my_whole_data <- whole_data %>% dplyr::select(-"Series.Code")
 names(my_whole_data)[1] <- 'Country'
 ```
 
-## 3 Developed and Developing country
-
-A developed country is a country has advanced technological infrastructure and high standard of living comparing to other less developed country and those less developed countries are called developing countries. However, there is no specific standard for classifying developed country. In our project, we define a country with GDP per capita over than 12,000 dollar is a developed country and less than 12,000 dollar is a developing country.
-
-```{r warning=FALSE, message=FALSE, echo=FALSE}
-df_raw2 <- my_whole_data %>% dplyr::select(-"Country.Code")
-df_gdp_cap <- df_raw2 %>% filter(str_detect(`Series.Name`, "per capita")) %>%
-  filter(str_detect(`Series.Name`, "constant")) 
-colnames(df_gdp_cap) <- c("Country","GDP","YR2011","YR2012","YR2013","YR2014","YR2015","YR2016","YR2017","YR2018","YR2019","YR2020")
-df_gdp_capita <- df_gdp_cap %>% dplyr::select(c("Country","YR2012"))
-
-df_gdp_capita$YR2012 <- as.numeric(df_gdp_capita$YR2012)
-
-df_gdp <-df_gdp_capita %>%dplyr::filter(YR2012 >= 9200 & YR2012 <= 14000) %>% ungroup()
-
-```
-
-```{R fig.width=8, fig.height=4, echo=FALSE}
-ggplot(df_gdp,aes(x = YR2012, fct_reorder(Country,YR2012)))+
-  geom_point(color = "blue")+
-  geom_vline(xintercept = 12000, linetype="dashed", color = "red" )+
-  ylab("")+
-  xlab("Year 2012")
-```
 
 Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
 
-## World employment rate 
+
+### World employment rate 
 
 ```{r warning=FALSE, message=FALSE, message='hide', echo=FALSE,include=FALSE}
 world.map <- map_data("world")
@@ -361,7 +337,7 @@ ggplot(Combined, aes(x=long, y=lat, group = group, fill = employment_rate)) +
 
 The graph provides an overview of employment rate in most countries around the world. From the graph we could see that most developed country and major economies has a high level of employment rate. The areas of low employment rate are concentrated on middle Asia and north Africa. These countries has various reasons such as war, imbalances in economic structures, and the inequality of male and female. Countries located in South America and Southeast Asia maintain a middle employment rate around seventy percent. We will then
 
-## Literacy and Employment
+### Literacy and Employment
 
 Literacy is the ability whether a person could read and write. Literacy is an important indicator of education. In this part, We will explore the association between education and employment by comparing the literacy rate and employment rate.
 
@@ -373,7 +349,7 @@ ggplot(df_1, aes(x=employment_rate, y = literacy_rate))+
 ```
 We could see four cluster in above contour plot. One concentrated cluster is around (0.7,99), which indicates most countries with a high literacy rate has acceptable employment rate. The contour line shows that the employment rate increases with the rate of literacy. However, there exist a few outliers that they have a distinctly lower literacy rate with high employment rate and high literacy rate with low employment rate. The plot also indicates that no country has high extremely employment rate with low literacy rate. According to above results, we could imply that there exist a positive association between literacy rate and employment rate.
 
-## Employment rate among different eduaction level
+### Employment rate among different eduaction level
 
 We then compare how level of knowledge affect employment in developing and developed countries. According to the graph of world employment rate. We pick Brazil, Egypt, South Africa, USA and UK to do this comparison. Among these countries, Brazil, Egypt and South Africa are developing countries, while UK and USA are developed countries. The reason that we are not using China and Japan as our previous parts is that China and Japan are missing data both from year and education level. We will classify education into three levels, which is basic, intermediate and advanced. Basic level is defined as schooling leads to basic reading, writing and mathematics skills. Intermediate level education refers to  Advance level education means all levels of colleges or universities and higher institutes.
 
