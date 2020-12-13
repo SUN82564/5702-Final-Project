@@ -24,7 +24,7 @@
 <meta name="author" content="Haoyu Liu, Yue Wang, James Ding" />
 
 
-<meta name="date" content="2020-12-05" />
+<meta name="date" content="2020-12-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="data-transformation.html"/>
-<link rel="next" href="results.html"/>
+<link rel="next" href="chapter-5-results.html"/>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -51,8 +51,6 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 
 
 
@@ -76,7 +74,24 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="chapter-5-results.html"><a href="chapter-5-results.html"><i class="fa fa-check"></i><b>5</b> Chapter 5 Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#developed-and-developing-country"><i class="fa fa-check"></i><b>5.1</b> Developed and Developing country</a></li>
+<li class="chapter" data-level="5.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#population-and-labor-force"><i class="fa fa-check"></i><b>5.2</b> Population and labor force</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#population-structures-between-developing-and-developed-countries"><i class="fa fa-check"></i><b>5.2.1</b> Population structures between developing and developed countries</a></li>
+<li class="chapter" data-level="5.2.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#labor-force-participation-between-developing-and-developed-countries"><i class="fa fa-check"></i><b>5.2.2</b> Labor force Participation between developing and developed countries</a></li>
+<li class="chapter" data-level="5.2.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#gender-analysis-base-on-participation-rate"><i class="fa fa-check"></i><b>5.2.3</b> Gender analysis base on participation rate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#import-and-export"><i class="fa fa-check"></i><b>5.3</b> Import and Export</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#account-for-percent-of-gdp-in-developed-and-developing-country"><i class="fa fa-check"></i><b>5.3.1</b> Account for percent of GDP in developed and developing country</a></li>
+<li class="chapter" data-level="5.3.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#how-does-imports-and-exports-effect-employment"><i class="fa fa-check"></i><b>5.3.2</b> How does imports and exports effect employment?</a></li>
+<li class="chapter" data-level="5.3.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#comparing-import-and-export-variables-together"><i class="fa fa-check"></i><b>5.3.3</b> Comparing import and export variables together</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="chapter-5-results.html"><a href="chapter-5-results.html#employment-and-education"><i class="fa fa-check"></i><b>5.4</b> Employment and Education</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#world-employment-rate"><i class="fa fa-check"></i><b>5.4.1</b> World employment rate</a></li>
+<li class="chapter" data-level="5.4.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#literacy-and-employment"><i class="fa fa-check"></i><b>5.4.2</b> Literacy and Employment</a></li>
+<li class="chapter" data-level="5.4.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#employment-rate-among-different-eduaction-level"><i class="fa fa-check"></i><b>5.4.3</b> Employment rate among different eduaction level</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -101,31 +116,34 @@
 <div id="missing-values" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
 <p>Since countries have different priorities when gethering and reporting employment data, there are a lot of missing values in the dataset.</p>
-<pre><code>##   Country.Name   Country.Code    Series.Name    Series.Code X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##              0              0              0              0            210            195            214            211            275</code></pre>
+<pre><code>## 锘緾ountry.Name    Country.Code     Series.Name     Series.Code  X2012..YR2012.  X2013..YR2013.  X2014..YR2014.  X2015..YR2015.  X2016..YR2016. 
+##               0               0               0               0             210             195             214             211             275</code></pre>
 <p>Understandably, the dataset does not have missing data regarding the country’s name or the names of the factor (series) being measured. Furthermore, it seems that yearly the amount of missing data is around 210. Looking at the data, much of the missing data is not reported for all 5 years, which results in the consistent number of missing values. However, in 2013 the amount of missing data seemed to be lower at 195, and in 2016 the amount of missing data was much higher at 275.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>As shown above, for the vast majority of the rows, there are 0 missing values. This makes sense, as usually if the country reports the data in one year it’ll usually continue to report the data for every year. The next most common value seems to be 5, which means that the country simply does not report that data. The interesting values are 1 - 4, which means that the data was reported for some but not all of the years.</p>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>A similar pattern seems to hold for the individual countries, where 0 is the most common number of missing values. However, for India, Japan, and South Africa, the second most common number of missing values are 4, 1, and 2, respectively. Since these are the countries with “unusual” distributions of missing values, it seems likely that these are the countries that cause the unusual number of missing values in year 2013 and 2016.</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             33             29             39             30             53</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>Japan reported slightly less missing values than average in 2013, which lines up with the global trend. However, the big difference is that Japan reported significantly more missing values in 2016. This probably contributed to the high number of missing data in 2016</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             32             32             39             39             44</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>It seems that India is reporting more missing values as time goes on, which slightly contributes to the unusual values in 2013 and 2016.</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             20             29             20             24             41</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>Contrary to the global trend, South Africa actually reported its second most missing values in 2013. It also reported its most missing values in 2016 (almost double its median), which certainly impacted the total number of missing values. Also, out of the 5 countries we are looking at, South Africa reports the least amount of missing values.</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             52             44             51             50             57</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>As expected, China was fairly consistent in its missing values, with slightly less in 2013 and slightly more in 2016. Out of the 5 countries we are looking at, China seems to have the most missing values.</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             43             32             35             37             45</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>The United States also reports a large number of missing values. Like other countries, it reports its least amount of missing values in 2013 and most in 2016. However, its second largets number of missing values occurs in 2012.</p>
 <pre><code>## X2012..YR2012. X2013..YR2013. X2014..YR2014. X2015..YR2015. X2016..YR2016. 
-##             30             29             30             31             35</code></pre>
+##              0              0              0              0              0</code></pre>
 <p>In general, the world wide statistics are fairly consistent, with slightly more missing at 2016. It seems that the increase in missing values in 2016 is a world wide phenomenon for some reason.</p>
+<p>In our another file, we do a whole missing value checking. We only keep the value which are included in years, since all categorical varibles do not have missing value.
+<img src="finalproj_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>This graph shows as the time gets closer, the missing values are getting more. So we need to choose years data from the ahead.</p>
 
 </div>
             </section>
@@ -134,7 +152,7 @@
         </div>
       </div>
 <a href="data-transformation.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="chapter-5-results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

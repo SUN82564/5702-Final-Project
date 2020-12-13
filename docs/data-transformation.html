@@ -24,7 +24,7 @@
 <meta name="author" content="Haoyu Liu, Yue Wang, James Ding" />
 
 
-<meta name="date" content="2020-12-05" />
+<meta name="date" content="2020-12-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,8 +51,6 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
-<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 
 
 
@@ -76,7 +74,24 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="chapter-5-results.html"><a href="chapter-5-results.html"><i class="fa fa-check"></i><b>5</b> Chapter 5 Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#developed-and-developing-country"><i class="fa fa-check"></i><b>5.1</b> Developed and Developing country</a></li>
+<li class="chapter" data-level="5.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#population-and-labor-force"><i class="fa fa-check"></i><b>5.2</b> Population and labor force</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#population-structures-between-developing-and-developed-countries"><i class="fa fa-check"></i><b>5.2.1</b> Population structures between developing and developed countries</a></li>
+<li class="chapter" data-level="5.2.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#labor-force-participation-between-developing-and-developed-countries"><i class="fa fa-check"></i><b>5.2.2</b> Labor force Participation between developing and developed countries</a></li>
+<li class="chapter" data-level="5.2.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#gender-analysis-base-on-participation-rate"><i class="fa fa-check"></i><b>5.2.3</b> Gender analysis base on participation rate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#import-and-export"><i class="fa fa-check"></i><b>5.3</b> Import and Export</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#account-for-percent-of-gdp-in-developed-and-developing-country"><i class="fa fa-check"></i><b>5.3.1</b> Account for percent of GDP in developed and developing country</a></li>
+<li class="chapter" data-level="5.3.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#how-does-imports-and-exports-effect-employment"><i class="fa fa-check"></i><b>5.3.2</b> How does imports and exports effect employment?</a></li>
+<li class="chapter" data-level="5.3.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#comparing-import-and-export-variables-together"><i class="fa fa-check"></i><b>5.3.3</b> Comparing import and export variables together</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="chapter-5-results.html"><a href="chapter-5-results.html#employment-and-education"><i class="fa fa-check"></i><b>5.4</b> Employment and Education</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="chapter-5-results.html"><a href="chapter-5-results.html#world-employment-rate"><i class="fa fa-check"></i><b>5.4.1</b> World employment rate</a></li>
+<li class="chapter" data-level="5.4.2" data-path="chapter-5-results.html"><a href="chapter-5-results.html#literacy-and-employment"><i class="fa fa-check"></i><b>5.4.2</b> Literacy and Employment</a></li>
+<li class="chapter" data-level="5.4.3" data-path="chapter-5-results.html"><a href="chapter-5-results.html#employment-rate-among-different-eduaction-level"><i class="fa fa-check"></i><b>5.4.3</b> Employment rate among different eduaction level</a></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
@@ -100,11 +115,17 @@
             <section class="normal" id="section-">
 <div id="data-transformation" class="section level1">
 <h1><span class="header-section-number">Chapter 3</span> Data transformation</h1>
-<p><br />
-Fortunately, the data which the website provided is in xlsx and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. After finishing loading the data, we found that the data is already tidy. By now, we only need to change the missing value into <em>NA</em> and remove those <em>NA</em> values.<br />
-</p>
-<p>After starting the project, we probably need to do more data transformation in order to display the interactive visualization and show complex information in d3.<br />
-</p>
+<p>Fortunately, the data which the website provided as xlsx files and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. Although the data is already tidy, we still need to remove the missing value and transform our data to a more plot friendly data.</p>
+<p>Data transformation steps:</p>
+<ol style="list-style-type: decimal">
+<li><p>We rename most column into more readable name. In our data, we rename the column “Country name” to “Country,” “X2012..YR2012.” to “2012” and make other year columns into similar transformation.</p></li>
+<li><p>Remove duplicate columns such as “Series Code”, since it is showing the same information as “Series.”</p></li>
+<li><p>Use <em>dylpr::filter</em> and <em>select</em> to change which category variables are needed. In our project, we select out the value of population, Country, labor force, gdp, and education.</p></li>
+<li><p>Using <em>pivot_longer</em> to pivot data from wide to long in order to make plotting graph easier and facet graph.</p></li>
+<li><p>Make number value numerical and factorize some category variables. Also re-level and rename the levels of those category variables using <em>fct_relevel</em> and <em>fct_recode</em>.</p></li>
+<li><p>Remove missing values. If the missing value is correlated with time, choose approximate value. In our project, we use <em>apply</em> and <em>na.locf</em> from package <em>zoo</em> to move the employment rate of different education level from Brazil in 2011 to 2012.</p></li>
+<li><p>For making a world graph, we need to import the world data from package <em>World</em> and merge the data into our data set. In order to merge the data, we need to use <em>standardizeCountry</em> from <em>rangeBuilder</em> to standardize Countries name. Then we matched the world map data with our project data.</p></li>
+</ol>
 
 </div>
             </section>
