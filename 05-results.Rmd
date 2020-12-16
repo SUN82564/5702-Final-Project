@@ -41,7 +41,7 @@ df_gdp_capita <- df_gdp_cap %>% dplyr::select(c("Country","YR2012"))
 
 df_gdp_capita$YR2012 <- as.numeric(df_gdp_capita$YR2012)
 
-df_gdp <-df_gdp_capita %>%dplyr::filter(YR2012 >= 9200 & YR2012 <= 14000) %>% ungroup()
+df_gdp <-df_gdp_capita %>%dplyr::filter(YR2012 >= 9600 & YR2012 <= 14000) %>% ungroup()
 
 ```
 
@@ -50,7 +50,10 @@ ggplot(df_gdp,aes(x = YR2012, fct_reorder(Country,YR2012)))+
   geom_point(color = "blue")+
   geom_vline(xintercept = 12000, linetype="dashed", color = "red" )+
   ylab("")+
-  xlab("Year 2012")
+  xlab("Year 2012")+
+  labs(title="Countries by GDP per captia in year 2012 ")+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
@@ -76,11 +79,13 @@ pop_data <- pop_data %>%
   ungroup()
 
 ggplot(pop_data, aes(x = fct_relevel(`Country Name`, 'World', 'United States', 'Japan', 'China', 'India', 'South Africa'), y = proportion, fill=Population)) +
-  geom_col(position = 'stack') +
+  geom_col(position = 'fill') +
   xlab("Country") +
   ylab("Proportion") +
   theme_classic(14) +
-  ggtitle('Population Structures for Countries in 2016')
+  labs(title = 'Population Structures for Countries in 2016')+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 This graph provides a basic overview of population structure in these 5 different countries and the world overall. It also allows us to compare between different countries, and countries with the world. If we use world as the benchmark, we can see that the countries that are more developed such as US, Japan and China have higher percentage of older people and lower percentage of teenagers. India and South Africa comparably have heavier teenager population and lighter senior population. If their growth rate or birth rate do not change,labor market would potentially be effected in the future. A large proportion of older people in the population and smaller proportion of teenagers will potentially cause a shortage in labor force, which could then impact the overall economy. However, to make such conclusion, we will need more detailed breakdowns of the middle group to see which tail is heavier. It makes sense to have majority of the population to be within the range from 15 to 64 since it has the wildest range. But if we have detailed breakdowns of this group, we can definitely analyze further and infer the future impacts on workforce. Next, we will further explore the workforce:
@@ -111,8 +116,11 @@ df1$`Laborforce Participation Rate` <- as.numeric(df1$`Laborforce Participation 
 ggplot(df1, aes(`Years`, `Laborforce Participation Rate`, group = `Country Name`, colour = `Country Name`)) +
   geom_point() +
   geom_line() +
-  theme_classic(14) +
-  ggtitle('Compare Across Countries: Trend on Laborforce Participation Rate')
+  theme_classic(14)+
+  labs(title = 'Compare Across Countries: Trend on Laborforce Participation Rate')+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5,size=11))+
+  theme_classic(14)
 ```
 
 
@@ -138,6 +146,8 @@ ggplot(df2, aes(`Years`, `Laborforce Participation Rate`, group = `Labor Force G
   geom_line() +
   facet_wrap(df2$`Country Name`) +
   theme_classic(14)+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))+
   ggtitle('Comparison Across Countries: Labor Force Participation by Gender')
 ```
 
@@ -179,24 +189,14 @@ imports_exports$Year <- as.factor(imports_exports$Year)
 
 ```{r warning=FALSE, echo=FALSE}
 imports_exports$value <- as.numeric(imports_exports$value)
-
-ggplot(imports_exports, aes(Year, value, group = Country.Name, color = Country.Name )) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~Series.Name) +
-  ggtitle("Imports and Exports as Percent of GDP") +
-  ylab("Percent of GDP") +
-  theme_classic(14)
-```
-
-```{r warning=FALSE, echo=FALSE}
 ggplot(imports_exports, aes(Year, value, group = Series.Name, color = Series.Name )) +
   geom_point() +
   geom_line() +
   facet_wrap(~Country.Name) +
   ggtitle("Imports and Exports as Percent of GDP") +
   ylab("Percent of GDP") +
-  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"))
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 Generally, it looks like countries maintain a similar level of imports and exports every year. This makes sense, as countries would not want to incur a trade deficit by importing significantly more than they export. Furthermore, in general the amount of imports and exports worldwide are decreasing each year. The only exceptions are South Africa's exports, which seem to be trending upwards, and Japan's imports and exports trend upwards initially, but decrease in recent years. In addition, the three developed countries (China, Japan, and the United States) have a lower percentage of imports and exports than the other countries. This is surprising because these countries are known for importing and exporting many goods. Since the imports and exports are measured as a percentage of GDP, this likely means that these countries are able to produce much more domestically than they import and export.
@@ -232,7 +232,8 @@ ggplot(imports_jobs, aes(Year, value, group = Series.Name, color = Series.Name )
   facet_wrap(~Country.Name) +
   ggtitle("Imports, Unemployment, and Labor Force Participation") +
   ylab("Percent") +
-  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"))
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 It seems that the amount of imports has very little or no effect on the unemployment rate. In most of the countries, the unemployment rate doesn't change much while the imports experience notable change. In South Africa, the unemployment rate actually increases when the percent of imports decreases. Also note that the labor force participation rates for all of these countries are relatively stable, so the unemployment rate is not affected by the amount of people looking for work. The only country where there may be a relationship is the United States. This could mean there is something unique about the United States where there is a relationship between these two variables, or this may just be a coincidence.
@@ -261,7 +262,10 @@ spine_data <- spine_data %>% pivot_wider(names_from = Series.Name, values_from =
 library(GGally)
 ggparcoord(spine_data, columns = 2:7, scale = 'uniminmax', groupColumn = 1) +
   ggtitle('Exports, Imports, and Labor') +
-  theme(panel.background = element_blank(), axis.line = element_line(color = "black"))
+  xlab("")+
+  ylab("Influence")+
+  theme(panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 
 There are a few interesting patterns we can see from this parallel coordinate plot. First, it seems that countries with low fuel exports have higher numbers of technology exports, while countries with low technology exports have high numbers of fuel exports. Notably, the countries with high fuel exports are developing countries, while the countries with high technology exports are developed countries. Also, countries with higher technology exports are countries with high labor force participation. One possible explanation for this is that the technology enables more people to get jobs i.e. people don't need to spend time vacuuming the household if they own a Roomba. Also, it seems that none of these variables really correlate with unemployment, as most of the countries have similar unemployment rates, (South Africa being the only outlier). 
@@ -331,7 +335,7 @@ ggplot(Combined, aes(x=long, y=lat, group = group, fill = employment_rate)) +
   scale_y_continuous(breaks=c()) +
   scale_x_continuous(breaks=c()) +
   theme(panel.border =  element_blank(),
-        plot.title = element_text(hjust = 0.5))
+        plot.title = element_text(hjust = 0.5,size=22))
 ```
 
 The graph provides an overview of employment rate in most countries around the world. From the graph we could see that most developed countries and major economies have higher levels of employment rate. The areas of low employment rate are concentrated on middle Asia and north Africa. These countries have various reasons such as war, imbalances in economic structures, and the inequality of male and female. Countries located in South America and Southeast Asia maintain a middle employment rate around seventy percent.
@@ -344,7 +348,12 @@ Literacy is the ability whether a person could read and write. Literacy is an im
 library(ggplot2)
 ggplot(df_1, aes(x=employment_rate, y = literacy_rate))+
   geom_point(col = "black", alpha = 0.5)+
-  geom_density2d(color="red")
+  geom_density2d(color="red")+
+  ylab("Literacy")+
+  xlab("Employment rate")+
+  labs(title = "Correlation between literacy and employment")+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
 ```
 We could see four cluster in above contour plot. One concentrated cluster is around (0.7,99), which indicates most countries with high literacy ratea have acceptable employment rates. The contour line shows that the employment rate increases with the higher rates of literacy. However, there exist a few outliers that have distinctly lower literacy rates with high employment rates and high literacy rates with low employment rates. The plot also indicates that no country has high extremely employment rate but low literacy rate at the same time. Above results imply that there exists a positive association between literacy rate and employment rate.
 
@@ -386,21 +395,6 @@ ggplot(df_ed, aes(fill=Series, y=Rate, x=Country))+
   theme(panel.border =  element_blank(),
         plot.title = element_text(hjust = 0.5))
 ```
-According to this graph, all five countries, whether it is a developed country or not, share similar pattern that people with higher level of education are easier to be employed. All five countries have about 80 percent of employment rate with people who have an advanced education. Brazil has a higher employment rate in basic education and similar employment rate with intermediate and advanced education in 2012. However, as time past, the employment rate distribution of Brazil has changed to a similar ratio as other countries. 
-
-
-```{R echo = FALSE, fig.height=6, fig.width=11}
-ggplot(df_ed, aes(group=Country, y=Rate, x=Year,color = Country))+
-  geom_point() +
-  geom_line() +
-  labs(title = "Employment rate of\n different education level vary in 2012-2016")+
-  facet_wrap(~Series)+
-  theme_classic(14)+
-  theme(panel.border =  element_blank(),
-        plot.title = element_text(hjust = 0.5))
-```
-
-
-This graph indicates the how employment rate changes among different countries in 2012 to 2016. In Brazil, the employment of basic education drops dramatically in 5 years while other countries remains a similar rate. For intermediate education level, two developing countries, Brazil and Egypt, has a small drop over 5 years. The employment rate has a little fluctuation over these five years. We cannot judge whether developed countries have better employment rates at different levels of education according to these plots, since United States, the largest developed country, has a lower employment rate in all education level comparing with other countries.
+According to this graph, all five countries, whether it is a developed country or not, share similar pattern that people with higher level of education are easier to be employed. All five countries have about 80 percent of employment rate with people who have an advanced education. Brazil has a higher employment rate in basic education and similar employment rate with intermediate and advanced education in 2012. However, as time past, the employment rate distribution of Brazil has changed to a similar ratio as other countries. This graph also indicates the how employment rate changes among different countries in 2012 to 2016. In Brazil, the employment of basic education drops dramatically in 5 years while other countries remains a similar rate. For intermediate education level, two developing countries, Brazil and Egypt, has a small drop over 5 years. The employment rate has a little fluctuation over these five years. We cannot judge whether developed countries have better employment rates at different levels of education according to these plots, since United States, the largest developed country, has a lower employment rate in all education level comparing with other countries.
 
 
