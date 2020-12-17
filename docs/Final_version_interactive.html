@@ -1,0 +1,478 @@
+<html lang="en">
+  <head>
+    <title>Unemployment Compared to Other Variables</title>
+		<script src="https://d3js.org/d3.v4.js"></script>
+  </head>
+
+  <body>
+
+  <h2>Unemployment Compared to Other Variables</h2>
+
+  <div id = "rad"> 
+  <h3>
+    Selections:
+   </h3>
+   <h4>
+    (1) Choose a year to see the changes:
+   </h4>
+    <input type="radio" name ="year_num" value ="twelve" checked = 'True'>&nbsp;2012
+	  <input type="radio" name ="year_num" value ="thirteen">&nbsp;2013
+	  <input type="radio" name ="year_num" value ="fourteen">&nbsp;2014
+	  <input type="radio" name ="year_num" value ="fifteen">&nbsp;2015
+	  <input type="radio" name ="year_num" value ="sixteen">&nbsp;2016
+  </div>
+  <div id = "var"> 
+  <h4>
+    (2) Choose which statistic you want to see:
+    </h4>
+    <input type="radio" name ="var" value ="Exports" checked ='True'>&nbsp;Exports (% of GDP)
+	  <input type="radio" name ="var" value ="Imports">&nbsp;Imports (% of GDP)
+	  <input type="radio" name ="var" value ="LFPR">&nbsp;Labor Force Participation Rate (LFPR)
+	<h4>
+	 Make predictions:
+	</h4>
+  <h7>
+    <p>The worldiwde unemployment rate for the selected year is shown.</p>
+    <p>Try to predict the unemployment rate for each country by dragging the red circles.</p>
+  </h7>
+  </div>
+  <div id = "show">
+    <h4>
+      Show unemployment rates?
+    </h4>
+    <input type="radio" name ="show" value =1 >&nbsp;Yes
+	  <input type="radio" name ="show" value =0 checked ='True'>&nbsp;No
+  </div>
+  <script>
+
+  var w = 650;
+  var h = 500;
+  var margin = {top: 25, right: 200, bottom: 50, left: 50};
+  var innerWidth = w - margin.left - margin.right;
+  var innerHeight = h - margin.top - margin.bottom;
+  
+  var year = "twelve"
+  var variable = "Exports"
+  var show = 0
+  
+  var bar1data = [
+    {
+      "country": "World",
+      "twelve": 5.599875,
+      "thirteen":5.570547,
+      "fourteen":5.435013,
+      "fifteen":5.446447,
+      "sixteen":5.531033,
+      
+    },
+    {
+      "country": "United States",
+      "twelve": 8.070000,
+      "thirteen":7.380000,
+      "fourteen":6.170000,
+      "fifteen":5.280000,
+      "sixteen":4.870000,
+      
+    },
+    {
+      "country": "Japan",
+      "twelve": 4.350000,
+      "thirteen":4.030000,
+      "fourteen":3.580000,
+      "fifteen":3.330000,
+      "sixteen":3.130000,
+      
+    },
+    {
+      "country": "China", 
+      "twelve":4.470000,
+      "thirteen":4.540000,
+      "fourteen":4.593000,
+      "fifteen":4.605000,
+      "sixteen":4.649000,
+      
+    },
+    {
+      "country": "India",
+      "twelve": 3.621000,
+      "thirteen":3.464000,
+      "fourteen":3.414000,
+      "fifteen":3.490000,
+      "sixteen":3.505000,
+      
+    },
+    {
+      "country": "South Africa",
+      "twelve": 24.730000,
+      "thirteen":24.570000,
+      "fourteen":24.900000,
+      "fifteen":25.160000,
+      "sixteen":26.549999,
+      
+    }
+    ];
+  
+  var bar2data = [
+        {
+      "country": "World",
+      "Imports": {
+        "twelve":29.98443,
+        "thirteen":29.73425,
+        "fourteen":29.65791,
+        "fifteen":28.51300,
+        "sixteen":27.69025,
+      },
+      "Exports": {
+        "twelve": 30.58440,
+        "thirteen":30.39856,
+        "fourteen":30.18438,
+        "fifteen":29.29426,
+        "sixteen":28.51651,
+      },
+      "LFPR": {
+        "twelve":62.4095661175802,
+        "thirteen":62.3394506939042,
+        "fourteen":62.2163064347817,
+        "fifteen":62.1201995910464,
+        "sixteen":62.1045339988456,
+      }
+    },
+        {
+      "country": "United States",
+      "Imports": {
+        "twelve":17.10802,
+        "thirteen":16.58695,
+        "fourteen":16.54362,
+        "fifteen":15.39099,
+        "sixteen":14.68930,
+      },
+      "Exports":{
+        "twelve": 13.60661,
+        "thirteen":13.63931,
+        "fourteen":13.62004,
+        "fifteen":12.49904,
+        "sixteen":11.89062,
+      },
+      "LFPR": {
+        "twelve":62.8979988098145,
+        "thirteen":62.5169982910156,
+        "fourteen":62.2089996337891,
+        "fifteen":62.0139999389648,
+        "sixteen":62.1599998474121,
+      }
+      
+    },
+        {
+      "country": "Japan",
+      "Imports": {
+        "twelve":16.09137,
+        "thirteen":18.23212,
+        "fourteen":20.00547,
+        "fifteen":18.00747,
+        "sixteen":15.14743,
+      },
+      "Exports":{
+        "twelve": 14.54475,
+        "thirteen":15.91540,
+        "fourteen":17.54030,
+        "fifteen":17.58893,
+        "sixteen":16.11915,
+      },
+      "LFPR": {
+        "twelve":59.2830009460449,
+        "thirteen":59.6199989318848,
+        "fourteen":59.8139991760254,
+        "fifteen":59.9900016784668,
+        "sixteen":60.4560012817383,
+      }
+      
+    },
+    {
+      "country": "China", 
+      "Imports": {
+        "twelve":22.69966,
+        "thirteen":22.06025,
+        "fourteen":21.38150,
+        "fifteen":18.10499,
+        "sixteen":17.37544,
+      },
+      "Exports": {
+        "twelve": 25.40820,
+        "thirteen": 24.50498,
+        "fourteen":23.49506,
+        "fifteen":21.34807,
+        "sixteen":19.65838,
+      },
+      "LFPR": {
+        "twelve":70.5270004272461,
+        "thirteen":70.3010025024414,
+        "fourteen":70.0390014648438,
+        "fifteen":69.7320022583008,
+        "sixteen":69.3659973144531,
+      }
+      
+    },
+    {
+      "country": "India",
+      "Imports": {
+        "twelve":31.25929,
+        "thirteen":28.41327,
+        "fourteen":25.95422,
+        "fifteen":22.12225,
+        "sixteen":21.03426,
+      },
+      "Exports": {
+        "twelve": 24.53443,
+        "thirteen":25.43086,
+        "fourteen":22.96796,
+        "fifteen":19.82443,
+        "sixteen":19.31492,
+      },
+      "LFPR": {
+        "twelve":53.9640007019043,
+        "thirteen":53.9659996032715,
+        "fourteen":53.9630012512207,
+        "fifteen":53.9490013122559,
+        "sixteen":53.9290008544922,
+      }
+    },
+    {
+      "country": "South Africa",
+      "Imports": {
+        "twelve":31.17582,
+        "thirteen":33.27042,
+        "fourteen":32.96586,
+        "fifteen":31.44410,
+        "sixteen":30.08793,
+      },
+      "Exports": {
+        "twelve": 29.72388,
+        "thirteen":30.97134,
+        "fourteen":31.46865,
+        "fifteen":30.15605,
+        "sixteen":30.70260,
+      },
+      "LFPR": {
+        "twelve":52.6609992980957,
+        "thirteen":53.2210006713867,
+        "fourteen":53.431999206543,
+        "fifteen":54.6479988098145,
+        "sixteen":54.7039985656738,
+      }
+    }
+    ];
+
+  var ydomain = [0,35]
+  var xScale = d3.scaleBand()
+      .domain(bar1data.map(d => d.country))
+      .range([0, innerWidth])
+      .paddingInner(.2);
+
+  var yScale = d3.scaleLinear()
+      .domain(ydomain)
+      .range([innerHeight, 0])
+
+  // add svg
+
+  var svg = d3.select("body")
+    .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+  // add background rectangle
+
+  svg.append("rect")
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("width", w)
+    .attr("height", h)
+    .attr("fill", "white");
+    
+  // Add Legend
+  svg.append("rect")
+    .attr("x", "470")
+    .attr("y", "250")
+    .attr("width", "25")
+    .attr("height", "25")
+    .attr("fill", "green")
+    
+  svg.append("text")
+    .attr("x", "500")
+    .attr("y", "268")
+    .text("Unemployment Rate")
+  
+  svg.append("rect")
+    .attr("x", "470")
+    .attr("y", "200")
+    .attr("width", "25")
+    .attr("height", "25")
+    .attr("fill", "blue")
+    
+  svg.append("text")
+    .attr("id", "bar2")
+    .attr("x", "500")
+    .attr("y", "218")
+    .text(variable)
+
+  // add bars as a group
+
+  var bar2 = svg.append("g")
+      .attr("id", "bar2")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .selectAll("rect")
+      .data(bar2data);
+
+  bar2.enter().append("rect")
+      .attr("x", d => xScale(d.country))
+      .attr("y", d => yScale(d[variable][year]))
+      .attr("width", xScale.bandwidth()/2)
+      .attr("height", d => innerHeight - yScale(d[variable][year]))
+      .attr("fill", "blue");
+      
+  var bar1 = svg.append("g")
+      .attr("id", "bar1")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .selectAll("rect")
+      .data(bar1data);
+      
+  bar1.enter().append("rect")
+      .attr("id", "country")
+      .attr("x", d=>xScale(d.country)+xScale.bandwidth()/2)  
+      .attr("y", d=>yScale(d[year]))
+      .attr("width", xScale.bandwidth()/2)
+      .attr("height", d=> innerHeight - yScale(d[year]))
+      .attr("fill", "white")
+  
+  d3.select("g#bar1").select("rect")
+      .attr("id", "world")
+      .attr("fill", "green")
+      
+  var xAxis = d3.axisBottom()
+      .scale(xScale);
+
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+      
+  // add axes
+
+  svg.append("g")
+      .attr("class", "xAxis")
+      .attr("transform", `translate (${margin.left}, ${h - margin.bottom})`)
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "yAxis")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .call(yAxis);
+      
+  var ylabel = svg.append("text")
+    .attr("class", "y label")
+    .attr("x", 45)
+    .attr("y", 8)
+    .attr("dy", ".75em")
+    .text("(%)");
+    
+    // change the years
+    d3.select("div#rad")
+    .selectAll("input")
+    .on("click", function() {
+      year = d3.select(this).node().value
+      
+      d3.select("g#bar2").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[variable][year]))
+        .attr("height", d => innerHeight - yScale(d[variable][year]))
+      
+      d3.select("g#bar1").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[year]))
+        .attr("height", d => innerHeight - yScale(d[year]))
+    })
+    
+    
+    
+    // change the variable
+    d3.select("div#var")
+    .selectAll("input")
+    .on("click", function() {
+      variable = d3.select(this).node().value
+      
+      if (variable == "LFPR"){
+        yScale.domain([0,70])      
+        
+      } else{
+        yScale.domain([0,35])
+      }
+      update_axis()
+      
+      
+      d3.select("g#bar2").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[variable][year]))
+        .attr("height", d => innerHeight - yScale(d[variable][year]))
+        
+      d3.select("text#bar2")
+        .text(variable)
+    })
+    
+    //update axes
+    
+    function update_axis(){
+      svg.select(".yAxis")
+          .transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .call(yAxis);
+      d3.select("g#bar1").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[year]))
+        .attr("height", d => innerHeight - yScale(d[year]))
+    }
+      
+    // show unemployment rates
+    d3.select("div#show")
+          .selectAll("input")
+          .on("click", function() {
+            show = d3.select(this).node().value
+            
+            if(show == 1){
+              d3.select("g#bar1").selectAll("rect#country")
+                .transition()
+                .duration(1000)
+                .attr("fill", "green")
+            } else{
+              d3.select("g#bar1").selectAll("rect#country")
+                .transition()
+                .duration(1000)
+                .attr("fill", "white")
+            }
+      })
+    
+  //
+  var svg_circ = d3.select("svg")
+        .append("g")
+        .attr("class","cir")
+        .selectAll("circle")
+        .data([160, 230, 298, 367, 436])
+        .enter()
+        .append("circle")
+        .attr("cx", d=>d)
+        .attr("cy", 400)
+        .attr("r", 6)
+        .attr("fill", "red")
+        
+  var drag_handler = d3.drag()
+    .on("drag", function(d) {
+          d3.select(this)
+            .attr("cy", d.y = d3.event.y)
+            }) 
+            
+  drag_handler(svg_circ)
+  
+    </script>
+  </body>
+</html>
