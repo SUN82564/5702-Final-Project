@@ -4,11 +4,14 @@ data-transformation
 missing-values
 chapter-5-results
 developed-and-developing-country
+import-and-export
+account-for-percent-of-gdp-in-developed-and-developing-country
+how-does-imports-and-exports-effect-employment
+comparing-import-and-export-variables-together
 population-and-labor-force
 population-structures-between-developing-and-developed-countries
 labor-force-participation-between-developing-and-developed-countries
 gender-analysis-base-on-participation-rate
-import-and-export
 employment-and-education
 world-employment-rate
 literacy-and-employment
