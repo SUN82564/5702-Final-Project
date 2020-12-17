@@ -2,12 +2,12 @@
 # Data transformation
 
 
-Fortunately, the data which the website provided as xlsx files and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. Although the data is already tidy, we still need to remove the missing value and transform our data to a more plot friendly data.
+Fortunately, the data which the website provided as xlsx files and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv files which means that reading by Rstudio is straightforward. Although the data is already tidy, we still need to remove the missing value and transform our data to more plot friendly data.
 
 Data transformation steps:
 
 
-  1. We rename most column into more readable name. In our data, we rename the column "Country name" to "Country," "X2012..YR2012." to "2012" and make other year columns into similar transformation.
+  1. We rename most columns into more readable names. In our data, we rename the column "Country name" to "Country," "X2012..YR2012." to "2012" and make other year columns into similar transformations.
   
   
   
@@ -24,7 +24,7 @@ Data transformation steps:
   5. Make number value numerical and factorize some category variables. Also re-level and rename the levels of those category variables using *fct_relevel* and *fct_recode*.
   
   
-  6. Remove missing values. If the missing value is correlated with time, choose approximate value. In our project, we use *apply* and *na.locf* from package *zoo* to move the employment rate of different education level from Brazil in 2011 to 2012.
+  6. Remove missing values. If the missing value is correlated with time, choose an approximate value. In our project, we use *apply* and *na.locf* from package *zoo* to move the employment rate of different education levels from Brazil in 2011 to 2012.
   
   
   7. For making a world graph, we need to import the world data from package *World* and merge the data into our data set. In order to merge the data, we need to use *standardizeCountry* from *rangeBuilder* to standardize Countries name. Then we matched the world map data with our project data. 
