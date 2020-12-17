@@ -1,0 +1,1089 @@
+--- 
+title: "What influences employment?"
+author: "Haoyu Liu, Yue Wang, James Ding "
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+---
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Introduction
+Employment in a country can be effected by various factors such as development states of different countries, population structure of age groups or gender groups, and many others. A more interesting question we could ask is: do all countries in the same development state share the same features? This project will be based on the data provided by the world bank database. Based on the data provided, we will explore different variables that could have an impact on the labor market. We will try to answer some questions that’s related to the employment in different countries from different dimensions. We will not only compare the results between different countries and countries with the world overall but also explore the trend across time. Based on these observations, we will also be able to make some general predictions on how they will involve over time and influence the market. 
+
+
+<!--chapter:end:index.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Data sources
+
+The data source we use will be from the world bank database, and you can easily access the data from this link: https://databank.worldbank.org/source/jobs# and https://databank.worldbank.org/source/world-development-indicators#. These data are from two public databases, jobs and World development indicators, provided by the world bank. Yue will be responsible for collecting the data, and the process is relatively simple. One can go to the link and customize the data he/she wants from the interactive selection area. For out final project, we will be using both two databases, selecting different developing and developed countries including Japan, China, United State, Brazil, India, Egypt, UK and South Africa, and all variables/series they provided. We will set the time range to be the most up to date 4-5 years to analyze. We will set the aggregation rule to be average of data available for each time period because we want to compare the overall situations across all countries. 
+  \
+Some basic information about the dataset:
+  \
+The job database provides 166 series/variables that we can use. Currently, we chose about 8 countries and world data from most recent available 5 years, which yields over 2500*5 records. We work from this comprehensive dataset and select several variables that could help answer our research questions. We will also avoid using those that have a lot of missing values. The data types include categorical variables like countries, time series data, some variables with factor levels, and numerical variables. 
+  \
+Values for some variables are missing across all countries selected across all years, for example, the literacy rate, and values for variables like primary completion rate are missing for several years. We will further analyze the missing data to decide which ones could be used or not. Furthermore, the dataset is rather raw and will need to be reorganized because they break down into a very detailed way. For instance, many variables/series they provide should actually be the levels of the same variable. We will need to work on organize the data into a more usable form. 
+
+<!--chapter:end:02-data.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Data transformation
+
+
+Fortunately, the data which the website provided as xlsx files and provided with a detailed explanation about the variables inside the data. It could be easily converted to csv file which means that reading by Rstudio is straightforward. Although the data is already tidy, we still need to remove the missing value and transform our data to a more plot friendly data.
+
+Data transformation steps:
+
+
+  1. We rename most column into more readable name. In our data, we rename the column "Country name" to "Country," "X2012..YR2012." to "2012" and make other year columns into similar transformation.
+  
+  
+  
+  2. Remove duplicate columns such as "Series Code", since it is showing the same information as "Series."
+  
+  
+  
+  3. Use *dylpr::filter* and *select* to change which category variables are needed. In our project, we select out the value of population, Country, labor force, gdp, and education.
+  
+  
+  4. Using *pivot_longer* to pivot data from wide to long in order to make plotting graph easier and facet graph.
+  
+  
+  5. Make number value numerical and factorize some category variables. Also re-level and rename the levels of those category variables using *fct_relevel* and *fct_recode*.
+  
+  
+  6. Remove missing values. If the missing value is correlated with time, choose approximate value. In our project, we use *apply* and *na.locf* from package *zoo* to move the employment rate of different education level from Brazil in 2011 to 2012.
+  
+  
+  7. For making a world graph, we need to import the world data from package *World* and merge the data into our data set. In order to merge the data, we need to use *standardizeCountry* from *rangeBuilder* to standardize Countries name. Then we matched the world map data with our project data. 
+  
+  
+
+<!--chapter:end:03-cleaning.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Missing values
+
+```{r error=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(naniar)
+library(extracat)
+library(readr)
+data = read.csv("Data_Extract_From_Jobs.csv")
+data <- data %>% replace_with_na_all(condition = ~.x == "..")
+data <- data %>% filter(row_number() <= n() - 5)
+```
+
+Since countries have different priorities when gethering and reporting employment data, there are a lot of missing values in the dataset.
+
+```{r}
+colSums(is.na(data))
+```
+Understandably, the dataset does not have missing data regarding the country's name or the names of the factor (series) being measured. Furthermore, it seems that yearly the amount of missing data is around 210. Looking at the data, much of the missing data is not reported for all 5 years, which results in the consistent number of missing values. However, in 2013 the amount of missing data seemed to be lower at 195, and in 2016 the amount of missing data was much higher at 275.
+
+```{r}
+data$missing <- rowSums(is.na(data))
+ggplot(data, aes(x = missing)) +
+  geom_bar()
+```
+
+As shown above, for the vast majority of the rows, there are 0 missing values. This makes sense, as usually if the country reports the data in one year it'll usually continue to report the data for every year.  The next most common value seems to be 5, which means that the country simply does not report that data. The interesting values are 1 - 4, which means that the data was reported for some but not all of the years.
+
+```{r}
+ggplot(data, aes(x = missing)) +
+  geom_bar() +
+  facet_wrap(~ Country.Code)
+```
+
+
+A similar pattern seems to hold for the individual countries, where 0 is the most common number of missing values. However, for India, Japan, and South Africa, the second most common number of missing values are 4, 1, and 2, respectively. Since these are the countries with "unusual" distributions of missing values, it seems likely that these are the countries that cause the unusual number of missing values in year 2013 and 2016.
+
+```{r}
+Japan_missing <- data %>% filter(Country.Code == "JPN") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(Japan_missing))
+```
+Japan reported slightly less missing values than average in 2013, which lines up with the global trend. However, the big difference is that Japan reported significantly more missing values in 2016. This probably contributed to the high number of missing data in 2016
+
+```{r}
+India_missing <- data %>% filter(Country.Code == "IND") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(India_missing))
+```
+
+It seems that India is reporting more missing values as time goes on, which slightly contributes to the unusual values in 2013 and 2016.
+
+```{r}
+SA_missing <- data %>% filter(Country.Code == "ZAF") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(SA_missing))
+```
+
+Contrary to the global trend, South Africa actually reported its second most missing values in 2013. It also reported its most missing values in 2016 (almost double its median), which certainly impacted the total number of missing values. Also, out of the 5 countries we are looking at, South Africa reports the least amount of missing values.
+
+```{r}
+China_missing <- data %>% filter(Country.Code == "CHN") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(China_missing))
+```
+
+As expected, China was fairly consistent in its missing values, with slightly less in 2013 and slightly more in 2016. Out of the 5 countries we are looking at, China seems to have the most missing values.
+
+```{r}
+US_missing <- data %>% filter(Country.Code == "USA") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(US_missing))
+```
+The United States also reports a large number of missing values. Like other countries, it reports its least amount of missing values in 2013 and most in 2016. However, its second largets number of missing values occurs in 2012.
+
+```{r}
+world_missing <- data %>% filter(Country.Code == "WLD") %>% dplyr::select(X2012..YR2012., X2013..YR2013., X2014..YR2014., X2015..YR2015., X2016..YR2016.) 
+colSums(is.na(world_missing))
+```
+
+In general, the world wide statistics are fairly consistent, with slightly more missing at 2016. It seems that the increase in missing values in 2016 is a world wide phenomenon for some reason.
+
+
+In our another file, we do a whole missing value checking. We only keep the value which are included in years, since all categorical varibles do not have missing value.
+```{r}
+library(extracat)
+library(readr)
+whole_data <- read.csv("whole_Data.csv",na.strings='..')
+my_whole_data <- whole_data %>% dplyr::select(-"Series.Code",)
+names(my_whole_data)[1] <- 'Country'
+my_whole_data <- my_whole_data %>% dplyr::select(-"Country",-"Series.Name")
+visna(my_whole_data)
+```
+
+This graph shows as the time gets closer, the missing values are getting more. So we need to choose years data from the ahead.
+
+
+<!--chapter:end:04-missing.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Chapter 5 Results
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(countrycode)
+data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
+data <- na.omit(data)
+my_data = as_tibble(data)
+
+names(my_data)[1] <- 'Country Name'
+names(my_data)[3] <- 'Series Name'
+
+names(my_data)[5] <- '2012 [YR2012]'
+names(my_data)[6] <- '2013 [YR2013]'
+names(my_data)[7] <- '2014 [YR2014]'
+names(my_data)[8] <- '2015 [YR2015]'
+names(my_data)[9] <- '2016 [YR2016]'
+
+whole_data <- read.csv("whole_Data.csv",na.strings='..')
+my_whole_data <- whole_data %>% dplyr::select(-"Series.Code")
+names(my_whole_data)[1] <- 'Country'
+```
+
+
+## Developed and Developing country
+
+First we need to define developed countries and developing countries. A developed country is a country that has advanced technological infrastructure and high standard of living comparing to other less developed country, and those less developed countries are called developing countries. However, there is no specific standard for classifying developed country. In our project, we define a country with GDP per capita over than 12,000 dollar as a developed country and less than 12,000 dollar as a developing country.
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+df_raw2 <- my_whole_data %>% dplyr::select(-"Country.Code")
+df_gdp_cap <- df_raw2 %>% filter(str_detect(`Series.Name`, "per capita")) %>%
+  filter(str_detect(`Series.Name`, "constant")) 
+colnames(df_gdp_cap) <- c("Country","GDP","YR2011","YR2012","YR2013","YR2014","YR2015","YR2016","YR2017","YR2018","YR2019","YR2020")
+df_gdp_capita <- df_gdp_cap %>% dplyr::select(c("Country","YR2012"))
+
+df_gdp_capita$YR2012 <- as.numeric(df_gdp_capita$YR2012)
+
+df_gdp <-df_gdp_capita %>%dplyr::filter(YR2012 >= 9600 & YR2012 <= 14000) %>% ungroup()
+
+```
+
+```{R fig.width=8, fig.height=4, echo=FALSE}
+ggplot(df_gdp,aes(x = YR2012, fct_reorder(Country,YR2012)))+
+  geom_point(color = "blue")+
+  geom_vline(xintercept = 12000, linetype="dashed", color = "red" )+
+  ylab("")+
+  xlab("Year 2012")+
+  labs(title="Countries by GDP per captia in year 2012 ")+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
+
+##  Population and labor force
+
+### Population structures between developing and developed countries
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+pop_data <- my_data %>% filter(`Series Name` %in% c('Population ages 0-14, total', 'Population ages 15-64, total','Population ages 65 and above, total'))
+
+names(pop_data)[3] <- 'Population'
+
+pop_data <- pop_data[c('Country Name', 'Population', '2016 [YR2016]') ]
+pop_data$`2016 [YR2016]` <- as.numeric(pop_data$`2016 [YR2016]`)
+pop_data$Population <- as.factor(pop_data$Population)
+pop_data$Population <- fct_relevel(pop_data$Population, 'Population ages 65 and above, total','Population ages 15-64, total', 'Population ages 0-14, total')
+```
+```{r warning=FALSE, echo=FALSE, fig.width=9}
+library(ggplot2)
+pop_data <- pop_data %>%
+  mutate(proportion = prop.table(`2016 [YR2016]`)) %>%
+  ungroup()
+
+ggplot(pop_data, aes(x = fct_relevel(`Country Name`, 'World', 'United States', 'Japan', 'China', 'India', 'South Africa'), y = proportion, fill=Population)) +
+  geom_col(position = 'fill') +
+  xlab("Country") +
+  ylab("Proportion") +
+  theme_classic(14) +
+  labs(title = 'Population Structures for Countries in 2016')+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+This graph provides a basic overview of population structure in these 5 different countries and the world overall. It also allows us to compare between different countries, and countries with the world. If we use world as the benchmark, we can see that the countries that are more developed such as US, Japan and China have higher percentage of older people and lower percentage of teenagers. India and South Africa comparably have heavier teenager population and lighter senior population. If their growth rate or birth rate do not change,labor market would potentially be effected in the future. A large proportion of older people in the population and smaller proportion of teenagers will potentially cause a shortage in labor force, which could then impact the overall economy. However, to make such conclusion, we will need more detailed breakdowns of the middle group to see which tail is heavier. It makes sense to have majority of the population to be within the range from 15 to 64 since it has the wildest range. But if we have detailed breakdowns of this group, we can definitely analyze further and infer the future impacts on workforce. Next, we will further explore the workforce:
+
+### Labor force Participation between developing and developed countries
+
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+labor_par_data <- my_data %>% filter(`Series Name` %in% c('Labor force participation rate, female (% of female population ages 15+) (modeled ILO estimate)', 'Labor force participation rate, male (% of male population ages 15+) (modeled ILO estimate)', 
+'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)'))
+
+names(labor_par_data)[3] <- 'Labor Force Group'
+
+labor_par_data$`Labor Force Group` <- as.factor(labor_par_data$`Labor Force Group`)
+
+labor_par_data$`Labor Force Group` <- fct_recode(labor_par_data$`Labor Force Group`, 'Female' = 'Labor force participation rate, female (% of female population ages 15+) (modeled ILO estimate)', 'Male' = 'Labor force participation rate, male (% of male population ages 15+) (modeled ILO estimate)', 'Total' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)')
+```
+
+```{r warning=FALSE, echo=FALSE}
+df1 <- labor_par_data %>% filter(`Labor Force Group` %in% c('Total') )
+df1 <- df1[c('Country Name', '2012 [YR2012]','2013 [YR2013]', '2014 [YR2014]','2015 [YR2015]', '2016 [YR2016]')]
+df1<- df1 %>% gather('Years', 'Laborforce Participation Rate', -`Country Name`)
+
+df1$Years <- as.factor(df1$Years)
+df1$Years <- fct_recode(df1$Years, '2012' = '2012 [YR2012]', '2013'= '2013 [YR2013]', '2014' = '2014 [YR2014]', '2015' ='2015 [YR2015]', '2016'='2016 [YR2016]')
+df1$`Laborforce Participation Rate` <- as.numeric(df1$`Laborforce Participation Rate`)
+
+ggplot(df1, aes(`Years`, `Laborforce Participation Rate`, group = `Country Name`, colour = `Country Name`)) +
+  geom_point() +
+  geom_line() +
+  theme_classic(14)+
+  labs(title = 'Compare Across Countries: Trend on Laborforce Participation Rate')+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5,size=11))+
+  theme_classic(14)
+```
+
+
+Labor force participation rate is defined as the percentage of people who participate in work as of the total population. From this graph, we can see that China has been the highest in these five years among these countries and the world overall. United States overlaps with the world. However, the percent of people who can contribute to the job market has been declining for the past several years for China, which could be the result of increasing proportion of seniors in the population. Similarly, Japan has relative lower rate than the world average, which could also be explained by the population structure graph above. On the other hand, India and South Africa, the two countries that have higher proportion of teenagers and in-middle age groups, have only around half of the population working. While many factors can play a part in this, we can expect proportion to grow after 5 or 10 years since population of available workers will expand. 
+
+### Gender analysis base on participation rate 
+
+```{r warning=FALSE, echo=FALSE, fig.width=10}
+df2 <- labor_par_data %>% filter(`Labor Force Group` %in% c('Female', 'Male') )
+df2 <- df2[c('Country Name', 'Labor Force Group', '2012 [YR2012]','2013 [YR2013]', '2014 [YR2014]','2015 [YR2015]', '2016 [YR2016]')]
+df2 <- df2 %>% gather('Years', 'Laborforce Participation Rate', -`Country Name`, -`Labor Force Group`)
+
+df2$Years <- as.factor(df2$Years)
+df2$Years <- fct_recode(df2$Years, '2012' = '2012 [YR2012]', '2013'= '2013 [YR2013]', '2014' = '2014 [YR2014]', '2015' ='2015 [YR2015]', '2016'='2016 [YR2016]')
+
+df2$`Country Name` <- as.factor(df2$`Country Name`)
+df2$`Country Name` <- fct_relevel(df2$`Country Name`, 'World', 'United States', 'Japan', 'China', 'India', 'South Africa')
+df2$`Labor Force Group` <- as.factor(df2$`Labor Force Group`)
+df2$`Laborforce Participation Rate` <- as.numeric(df2$`Laborforce Participation Rate`)
+
+ggplot(df2, aes(`Years`, `Laborforce Participation Rate`, group = `Labor Force Group`, colour = `Labor Force Group`)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(df2$`Country Name`) +
+  theme_classic(14)+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))+
+  ggtitle('Comparison Across Countries: Labor Force Participation by Gender')
+```
+
+If we take a deeper look into the contribution structure and compare the participation rates by genders, we can see from this graph that they vary across different countries by a lot. The specific gender group represents the proportion of working people in its gender group. While China, United States and South Africa show narrower gap between male and female, India has the widest gap followed by Japan. From this observation, whether a country has a larger or smaller gap between participation rates of genders does not depend on its developing state. Though wide gender gap for Japan and India could be explained by their cultural reasons, we can observe that male across these countries and the world overall has higher proportion of working people. If we were to narrow this difference between genders, there is definitely a lot of room to improve. 
+
+There are many factors beside the within country characteristics, so next we will look into economic factors and explore how they associate with the labor market. 
+
+## Import and Export
+
+
+```{r  warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+library(tidyverse)
+data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
+cleaned_data <- na.omit(data)
+names(cleaned_data)[1] <- 'Country.Name'
+```
+
+Due to advancements in transportation and communications, international trade is becoming more and more common. As a result, imports and exports are key parts to any country's economy. With very few exceptions, all countries are somewhat reliant on trading with others. Therefore, it is important that we investigate the imports and exports of the selected countries. First, lets take a look at the imports and exports as a percentage of GDP from 2012 to 2016.
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+imports_exports <- cleaned_data %>% rename(
+  '2012' = `X2012..YR2012.`,
+  '2013' = `X2013..YR2013.`,
+  '2014' = `X2014..YR2014.`,
+  '2015' = `X2015..YR2015.`,
+  '2016' = `X2016..YR2016.`,
+) %>% 
+  pivot_longer('2012':'2016', names_to = 'Year') %>%
+  filter(Series.Name %in% c('Exports of goods and services (% of GDP)', 'Imports of goods and services (% of GDP)'))
+
+imports_exports$Series.Name <- fct_recode(imports_exports$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 'Exports' = 'Exports of goods and services (% of GDP)')
+
+imports_exports$Series.Name <- fct_relevel(imports_exports$Series.Name, 'Imports', 'Exports')
+
+imports_exports$Year <- as.factor(imports_exports$Year)
+```
+
+### Account for percent of GDP in developed and developing country
+
+```{r warning=FALSE, echo=FALSE}
+imports_exports$value <- as.numeric(imports_exports$value)
+ggplot(imports_exports, aes(Year, value, group = Series.Name, color = Series.Name )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Country.Name) +
+  ggtitle("Imports and Exports as Percent of GDP") +
+  ylab("Percent of GDP") +
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+Generally, it looks like countries maintain a similar level of imports and exports every year. This makes sense, as countries would not want to incur a trade deficit by importing significantly more than they export. Furthermore, in general the amount of imports and exports worldwide are decreasing each year. The only exceptions are South Africa's exports, which seem to be trending upwards, and Japan's imports and exports trend upwards initially, but decrease in recent years. In addition, the three developed countries (China, Japan, and the United States) have a lower percentage of imports and exports than the other countries. This is surprising because these countries are known for importing and exporting many goods. Since the imports and exports are measured as a percentage of GDP, this likely means that these countries are able to produce much more domestically than they import and export.
+
+
+### How does imports and exports effect employment?
+
+Some people worry that reliance on imports leads to higher unemployment, as some jobs end up outsourced to another country. To evaluate this claim, we will compare imports to the unemployment rate in each country, as well as the labor force participation rate.
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+imports_jobs <- cleaned_data %>% rename(
+  '2012' = X2012..YR2012.,
+  '2013' = X2013..YR2013.,
+  '2014' = X2014..YR2014.,
+  '2015' = X2015..YR2015.,
+  '2016' = X2016..YR2016.,
+) %>% 
+  pivot_longer('2012':'2016', names_to = 'Year') %>%
+  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)'))
+
+imports_jobs$Series.Name <- fct_recode(imports_jobs$Series.Name, 'Imports (% of GDP)' = 'Imports of goods and services (% of GDP)', 'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment Rate' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
+
+imports_jobs$Series.Name <- fct_relevel(imports_jobs$Series.Name, 'Imports (% of GDP)', 'Unemployment Rate', 'Labor Force Participation')
+
+imports_jobs$Year <- as.factor(imports_jobs$Year)
+```
+
+
+```{r warning=FALSE, echo=FALSE}
+ggplot(imports_jobs, aes(Year, value, group = Series.Name, color = Series.Name )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Country.Name) +
+  ggtitle("Imports, Unemployment, and Labor Force Participation") +
+  ylab("Percent") +
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+It seems that the amount of imports has very little or no effect on the unemployment rate. In most of the countries, the unemployment rate doesn't change much while the imports experience notable change. In South Africa, the unemployment rate actually increases when the percent of imports decreases. Also note that the labor force participation rates for all of these countries are relatively stable, so the unemployment rate is not affected by the amount of people looking for work. The only country where there may be a relationship is the United States. This could mean there is something unique about the United States where there is a relationship between these two variables, or this may just be a coincidence.
+
+### Comparing import and export variables together
+
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+spine_data <- cleaned_data %>% rename(
+  '2016' = X2016..YR2016.,
+) %>%
+  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Exports of goods and services (% of GDP)', 'Fuel exports (% of merchandise exports)', 'High-technology exports (% of manufactured exports)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)')) %>%
+ dplyr::select(Country.Name, Series.Name, '2016')
+
+spine_data$Series.Name <- fct_recode(spine_data$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 
+                                      'Exports' = 'Exports of goods and services (% of GDP)',
+                                      'Fuel Exports' = 'Fuel exports (% of merchandise exports)',
+                                      'Technology Exports' = 'High-technology exports (% of manufactured exports)',
+                                      'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)',
+                                      'Unemployment' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
+
+spine_data <- spine_data %>% pivot_wider(names_from = Series.Name, values_from = '2016')
+```
+
+```{r warning=FALSE, echo=FALSE, fig.width=8}
+library(GGally)
+ggparcoord(spine_data, columns = 2:7, scale = 'uniminmax', groupColumn = 1) +
+  ggtitle('Exports, Imports, and Labor') +
+  xlab("")+
+  ylab("Influence")+
+  theme(panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+There are a few interesting patterns we can see from this parallel coordinate plot. First, it seems that countries with low fuel exports have higher numbers of technology exports, while countries with low technology exports have high numbers of fuel exports. Notably, the countries with high fuel exports are developing countries, while the countries with high technology exports are developed countries. Also, countries with higher technology exports are countries with high labor force participation. One possible explanation for this is that the technology enables more people to get jobs i.e. people don't need to spend time vacuuming the household if they own a Roomba. Also, it seems that none of these variables really correlate with unemployment, as most of the countries have similar unemployment rates, (South Africa being the only outlier). 
+
+## Employment and Education
+
+```{r warning=FALSE, message=FALSE, echo=FALSE,include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(countrycode)
+whole_data <- read.csv("whole_Data.csv",na.strings='..')
+my_whole_data <- whole_data %>% dplyr::select(-"Series.Code")
+names(my_whole_data)[1] <- 'Country'
+```
+
+
+Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
+
+
+### World employment rate 
+
+```{r warning=FALSE, message=FALSE, message='hide', echo=FALSE,include=FALSE}
+world.map <- map_data("world")
+df_t <- my_whole_data %>% filter(str_detect(`Series.Name`, "Literacy|, total") )
+df_h <- df_t %>%dplyr::select(c("Country","Country.Code","Series.Name", "X2018..YR2018."))
+df_raw <- df_h %>% 
+  head(792)%>%
+  pivot_wider(names_from = "Series.Name", values_from= "X2018..YR2018.")
+df_raw_temp <- df_raw
+colnames(df_raw) <- c("Country","Country_Code","working_population","labor_force","literacy_rate")
+df_raw$employment_rate <- as.numeric(df_raw$labor_force)/as.numeric(df_raw$working_population)
+
+df_raw$literacy_rate <- as.numeric(as.character(df_raw$literacy_rate))
+library(rangeBuilder)
+df_raw$country_temp <- df_raw$Country_Code %>% countrycode("wb","country.name")
+df_raw$country_temp <- standardizeCountry(df_raw$country_temp,fuzzyDist = 1, nthreads = 1)
+world.map$region <- standardizeCountry(world.map$region,fuzzyDist = 1, nthreads = 1)
+detach("package:rangeBuilder", unload = TRUE)
+df_1 <- df_raw %>% na.omit()
+Combined <- world.map[df_raw$country_temp %in% df_raw$country_temp, ]
+Combined$employment_rate <- df_raw$employment_rate[match(Combined$region, df_raw$country_temp)]
+Combined$literacy_rate <- df_raw$literacy_rate[match(Combined$region, df_raw$country_temp)]
+Countries <- unique(Combined$region)
+CDF <- data.frame(labe1 = Countries)
+```
+
+
+Employment rate refers as the ratio of the number of person who is employed to the number of working population. In our project, we define the working population is a country's population from age 15+ to 64, and the people in employment is the population of labor force. One important index that effects job market is education provided by different countries, In this part, we will focus on discovering the association between education and employment. First, we take a look at the brief employment rate in most countries in 2018.
+
+
+```{r echo=FALSE, fig.width=14, fig.height=8}
+for(i in CDF){
+  Combined$employment_rate = ifelse(Combined$region %in% CDF$label1[i], (df_raw$employment_rate), Combined$employment_rate)
+}
+
+ggplot(Combined, aes(x=long, y=lat, group = group, fill = employment_rate)) + 
+  geom_polygon(colour = "white") +
+  scale_fill_continuous(low = "green",
+                        high = "red",
+                        guide="colorbar") +
+  theme_bw()  +
+  labs(fill = "Employment Rate" ,title = "Employment rate around most country", x="", y="") +
+  scale_y_continuous(breaks=c()) +
+  scale_x_continuous(breaks=c()) +
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5,size=22))
+```
+
+The graph provides an overview of employment rate in most countries around the world. From the graph we could see that most developed countries and major economies have higher levels of employment rate. The areas of low employment rate are concentrated on middle Asia and north Africa. These countries have various reasons such as war, imbalances in economic structures, and the inequality of male and female. Countries located in South America and Southeast Asia maintain a middle employment rate around seventy percent.
+
+### Literacy and Employment
+
+Literacy is the ability whether a person could read and write. Literacy is an important indicator of education. In this part, We will explore the association between education and employment by comparing the literacy rate and employment rate.
+
+```{r echo=FALSE}
+library(ggplot2)
+ggplot(df_1, aes(x=employment_rate, y = literacy_rate))+
+  geom_point(col = "black", alpha = 0.5)+
+  geom_density2d(color="red")+
+  ylab("Literacy")+
+  xlab("Employment rate")+
+  labs(title = "Correlation between literacy and employment")+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+We could see four cluster in above contour plot. One concentrated cluster is around (0.7,99), which indicates most countries with high literacy ratea have acceptable employment rates. The contour line shows that the employment rate increases with the higher rates of literacy. However, there exist a few outliers that have distinctly lower literacy rates with high employment rates and high literacy rates with low employment rates. The plot also indicates that no country has high extremely employment rate but low literacy rate at the same time. Above results imply that there exists a positive association between literacy rate and employment rate.
+
+### Employment rate among different eduaction level
+
+Diving deeper, we then compare how level of knowledge affects employment in developing and developed countries differently. We pick Brazil, Egypt, South Africa, USA and UK to do this comparison (The reason that we are not using China and Japan as our previous parts is that China and Japan are missing data both from year and education level). Among these countries, Brazil, Egypt and South Africa are developing countries, while UK and USA are developed countries. We will classify education into three levels, which is basic, intermediate, and advanced. Basic level is defined as schooling leads to basic reading, writing and mathematics skills. Intermediate level education refers to...Advance level education means all levels of colleges or universities and higher institutes.
+
+
+```{r warning=FALSE, message=FALSE, message='hide', echo=FALSE, include=FALSE}
+df_raw3 <- my_whole_data %>% dplyr::select(-"Country.Code") %>% filter(str_detect(`Series.Name`,"working-age"))
+df_compare <- df_raw3 %>% filter(Country %in% c("United States", "United Kingdom","South Africa", "Brazil","Egypt, Arab Rep."))
+colnames(df_compare) <- c("Country", "Series","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020")
+df_start <- df_compare %>%dplyr::select(-c(`2020`,`2019`,`2018`,`2017`))
+library(zoo)
+#using previous year data if missing value
+df_comp <- as.data.frame(
+  t(apply(df_start, 1, function(x) na.locf(x, fromLast = F, na.rm = F))))%>%
+  dplyr::select(-`2011`)
+df_comp$Series <- as.factor(df_comp$Series)
+df_comp$Series<- fct_recode(df_comp$Series,
+                            "Advanced education" ="Labor force with advanced education (% of total working-age population with advanced education)",
+                            "Intermediate education"="Labor force with intermediate education (% of total working-age population with intermediate education)",
+                            "Basic education"="Labor force with basic education (% of total working-age population with basic education)" )
+df_comp$Series<- fct_relevel(df_comp$Series, 'Basic education', 'Intermediate education', 'Advanced education')
+```
+
+
+
+```{R echo = FALSE,fig.width=10, fig.height=10}
+df_ed <-df_comp%>%pivot_longer(cols = c(`2012`,`2013`,`2014`,`2015`,`2016`),
+               names_to = "Year",
+               values_to="Rate")
+df_ed$Rate <- as.numeric(as.numeric(as.character(df_ed$Rate)))
+ggplot(df_ed, aes(fill=Series, y=Rate, x=Country))+
+  geom_bar(position="dodge", stat="identity", colour = "black")+
+  facet_grid(rows = vars(Year))+
+  labs(title = "Employment rate between each education level during 2012-2016")+
+  theme_light()+
+  theme(panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+According to this graph, all five countries, whether it is a developed country or not, share similar pattern that people with higher level of education are easier to be employed. All five countries have about 80 percent of employment rate with people who have an advanced education. Brazil has a higher employment rate in basic education and similar employment rate with intermediate and advanced education in 2012. However, as time past, the employment rate distribution of Brazil has changed to a similar ratio as other countries. This graph also indicates the how employment rate changes among different countries in 2012 to 2016. In Brazil, the employment of basic education drops dramatically in 5 years while other countries remains a similar rate. For intermediate education level, two developing countries, Brazil and Egypt, has a small drop over 5 years. The employment rate has a little fluctuation over these five years. We cannot judge whether developed countries have better employment rates at different levels of education according to these plots, since United States, the largest developed country, has a lower employment rate in all education level comparing with other countries.
+
+
+
+<!--chapter:end:05-results.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Interactive component
+
+<script src="https://d3js.org/d3.v6.js"></script>
+<script>
+<h2>Unemployment Compared to Other Variables</h2>
+
+  <div id = "rad"> 
+  <h3>
+    Selections:
+   </h3>
+   <h4>
+    (1) Choose a year to see the changes:
+   </h4>
+    <input type="radio" name ="year_num" value ="twelve" checked = 'True'>&nbsp;2012
+	  <input type="radio" name ="year_num" value ="thirteen">&nbsp;2013
+	  <input type="radio" name ="year_num" value ="fourteen">&nbsp;2014
+	  <input type="radio" name ="year_num" value ="fifteen">&nbsp;2015
+	  <input type="radio" name ="year_num" value ="sixteen">&nbsp;2016
+  </div>
+  <div id = "var"> 
+  <h4>
+    (2) Choose which statistic you want to see:
+    </h4>
+    <input type="radio" name ="var" value ="Exports" checked ='True'>&nbsp;Exports (% of GDP)
+	  <input type="radio" name ="var" value ="Imports">&nbsp;Imports (% of GDP)
+	  <input type="radio" name ="var" value ="LFPR">&nbsp;Labor Force Participation Rate (LFPR)
+	<h4>
+	 Make predictions:
+	</h4>
+  <h7>
+    <p>The worldiwde unemployment rate for the selected year is shown.</p>
+    <p>Try to predict the unemployment rate for each country by dragging the red circles.</p>
+  </h7>
+  </div>
+  <div id = "show">
+    <h4>
+      Show unemployment rates?
+    </h4>
+    <input type="radio" name ="show" value =1 >&nbsp;Yes
+	  <input type="radio" name ="show" value =0 checked ='True'>&nbsp;No
+  </div>
+  <script>
+  
+  var w = 650;
+  var h = 500;
+  var margin = {top: 25, right: 200, bottom: 50, left: 50};
+  var innerWidth = w - margin.left - margin.right;
+  var innerHeight = h - margin.top - margin.bottom;
+  
+  var year = "twelve"
+  var variable = "Exports"
+  var show = 0
+  
+  var bar1data = [
+    {
+      "country": "World",
+      "twelve": 5.599875,
+      "thirteen":5.570547,
+      "fourteen":5.435013,
+      "fifteen":5.446447,
+      "sixteen":5.531033,
+      
+    },
+    {
+      "country": "United States",
+      "twelve": 8.070000,
+      "thirteen":7.380000,
+      "fourteen":6.170000,
+      "fifteen":5.280000,
+      "sixteen":4.870000,
+      
+    },
+    {
+      "country": "Japan",
+      "twelve": 4.350000,
+      "thirteen":4.030000,
+      "fourteen":3.580000,
+      "fifteen":3.330000,
+      "sixteen":3.130000,
+      
+    },
+    {
+      "country": "China", 
+      "twelve":4.470000,
+      "thirteen":4.540000,
+      "fourteen":4.593000,
+      "fifteen":4.605000,
+      "sixteen":4.649000,
+      
+    },
+    {
+      "country": "India",
+      "twelve": 3.621000,
+      "thirteen":3.464000,
+      "fourteen":3.414000,
+      "fifteen":3.490000,
+      "sixteen":3.505000,
+      
+    },
+    {
+      "country": "South Africa",
+      "twelve": 24.730000,
+      "thirteen":24.570000,
+      "fourteen":24.900000,
+      "fifteen":25.160000,
+      "sixteen":26.549999,
+      
+    }
+    ];
+  var bar2data = [
+        {
+      "country": "World",
+      "Imports": {
+        "twelve":29.98443,
+        "thirteen":29.73425,
+        "fourteen":29.65791,
+        "fifteen":28.51300,
+        "sixteen":27.69025,
+      },
+      "Exports": {
+        "twelve": 30.58440,
+        "thirteen":30.39856,
+        "fourteen":30.18438,
+        "fifteen":29.29426,
+        "sixteen":28.51651,
+      },
+      "LFPR": {
+        "twelve":62.4095661175802,
+        "thirteen":62.3394506939042,
+        "fourteen":62.2163064347817,
+        "fifteen":62.1201995910464,
+        "sixteen":62.1045339988456,
+      }
+    },
+        {
+      "country": "United States",
+      "Imports": {
+        "twelve":17.10802,
+        "thirteen":16.58695,
+        "fourteen":16.54362,
+        "fifteen":15.39099,
+        "sixteen":14.68930,
+      },
+      "Exports":{
+        "twelve": 13.60661,
+        "thirteen":13.63931,
+        "fourteen":13.62004,
+        "fifteen":12.49904,
+        "sixteen":11.89062,
+      },
+      "LFPR": {
+        "twelve":62.8979988098145,
+        "thirteen":62.5169982910156,
+        "fourteen":62.2089996337891,
+        "fifteen":62.0139999389648,
+        "sixteen":62.1599998474121,
+      }
+      
+    },
+        {
+      "country": "Japan",
+      "Imports": {
+        "twelve":16.09137,
+        "thirteen":18.23212,
+        "fourteen":20.00547,
+        "fifteen":18.00747,
+        "sixteen":15.14743,
+      },
+      "Exports":{
+        "twelve": 14.54475,
+        "thirteen":15.91540,
+        "fourteen":17.54030,
+        "fifteen":17.58893,
+        "sixteen":16.11915,
+      },
+      "LFPR": {
+        "twelve":59.2830009460449,
+        "thirteen":59.6199989318848,
+        "fourteen":59.8139991760254,
+        "fifteen":59.9900016784668,
+        "sixteen":60.4560012817383,
+      }
+      
+    },
+    {
+      "country": "China", 
+      "Imports": {
+        "twelve":22.69966,
+        "thirteen":22.06025,
+        "fourteen":21.38150,
+        "fifteen":18.10499,
+        "sixteen":17.37544,
+      },
+      "Exports": {
+        "twelve": 25.40820,
+        "thirteen": 24.50498,
+        "fourteen":23.49506,
+        "fifteen":21.34807,
+        "sixteen":19.65838,
+      },
+      "LFPR": {
+        "twelve":70.5270004272461,
+        "thirteen":70.3010025024414,
+        "fourteen":70.0390014648438,
+        "fifteen":69.7320022583008,
+        "sixteen":69.3659973144531,
+      }
+      
+    },
+    {
+      "country": "India",
+      "Imports": {
+        "twelve":31.25929,
+        "thirteen":28.41327,
+        "fourteen":25.95422,
+        "fifteen":22.12225,
+        "sixteen":21.03426,
+      },
+      "Exports": {
+        "twelve": 24.53443,
+        "thirteen":25.43086,
+        "fourteen":22.96796,
+        "fifteen":19.82443,
+        "sixteen":19.31492,
+      },
+      "LFPR": {
+        "twelve":53.9640007019043,
+        "thirteen":53.9659996032715,
+        "fourteen":53.9630012512207,
+        "fifteen":53.9490013122559,
+        "sixteen":53.9290008544922,
+      }
+    },
+    {
+      "country": "South Africa",
+      "Imports": {
+        "twelve":31.17582,
+        "thirteen":33.27042,
+        "fourteen":32.96586,
+        "fifteen":31.44410,
+        "sixteen":30.08793,
+      },
+      "Exports": {
+        "twelve": 29.72388,
+        "thirteen":30.97134,
+        "fourteen":31.46865,
+        "fifteen":30.15605,
+        "sixteen":30.70260,
+      },
+      "LFPR": {
+        "twelve":52.6609992980957,
+        "thirteen":53.2210006713867,
+        "fourteen":53.431999206543,
+        "fifteen":54.6479988098145,
+        "sixteen":54.7039985656738,
+      }
+    }
+    ];
+
+  <script>
+  var ydomain = [0,35]
+  var xScale = d3.scaleBand()
+      .domain(bar1data.map(d => d.country))
+      .range([0, innerWidth])
+      .paddingInner(.2);
+
+  var yScale = d3.scaleLinear()
+      .domain(ydomain)
+      .range([innerHeight, 0])
+
+  // add svg
+
+  var svg = d3.select("body")
+    .append("svg")
+      .attr("width", w)
+      .attr("height", h);
+
+  // add background rectangle
+
+  svg.append("rect")
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("width", w)
+    .attr("height", h)
+    .attr("fill", "white");
+    
+  // Add Legend
+  svg.append("rect")
+    .attr("x", "470")
+    .attr("y", "250")
+    .attr("width", "25")
+    .attr("height", "25")
+    .attr("fill", "green")
+    
+  svg.append("text")
+    .attr("x", "500")
+    .attr("y", "268")
+    .text("Unemployment Rate")
+  
+  svg.append("rect")
+    .attr("x", "470")
+    .attr("y", "200")
+    .attr("width", "25")
+    .attr("height", "25")
+    .attr("fill", "blue")
+    
+  svg.append("text")
+    .attr("id", "bar2")
+    .attr("x", "500")
+    .attr("y", "218")
+    .text(variable)
+
+  // add bars as a group
+
+  var bar2 = svg.append("g")
+      .attr("id", "bar2")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .selectAll("rect")
+      .data(bar2data);
+
+  bar2.enter().append("rect")
+      .attr("x", d => xScale(d.country))
+      .attr("y", d => yScale(d[variable][year]))
+      .attr("width", xScale.bandwidth()/2)
+      .attr("height", d => innerHeight - yScale(d[variable][year]))
+      .attr("fill", "blue");
+      
+  var bar1 = svg.append("g")
+      .attr("id", "bar1")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .selectAll("rect")
+      .data(bar1data);
+      
+  bar1.enter().append("rect")
+      .attr("id", "country")
+      .attr("x", d=>xScale(d.country)+xScale.bandwidth()/2)  
+      .attr("y", d=>yScale(d[year]))
+      .attr("width", xScale.bandwidth()/2)
+      .attr("height", d=> innerHeight - yScale(d[year]))
+      .attr("fill", "white")
+  
+  d3.select("g#bar1").select("rect")
+      .attr("id", "world")
+      .attr("fill", "green")
+      
+  var xAxis = d3.axisBottom()
+      .scale(xScale);
+
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+      
+  // add axes
+
+  svg.append("g")
+      .attr("class", "xAxis")
+      .attr("transform", `translate (${margin.left}, ${h - margin.bottom})`)
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "yAxis")
+      .attr("transform", `translate (${margin.left}, ${margin.top})`)
+      .call(yAxis);
+      
+  var ylabel = svg.append("text")
+    .attr("class", "y label")
+    .attr("x", 45)
+    .attr("y", 8)
+    .attr("dy", ".75em")
+    .text("(%)");
+    
+    // change the years
+    
+    d3.select("div#rad")
+    .selectAll("input")
+    .on("click", function() {
+      year = d3.select(this).node().value
+      
+      d3.select("g#bar2").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[variable][year]))
+        .attr("height", d => innerHeight - yScale(d[variable][year]))
+      
+      d3.select("g#bar1").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[year]))
+        .attr("height", d => innerHeight - yScale(d[year]))
+    })
+    
+    
+    
+    // change the variable
+    d3.select("div#var")
+    .selectAll("input")
+    .on("click", function() {
+      variable = d3.select(this).node().value
+      
+      if (variable == "LFPR"){
+        yScale.domain([0,70])      
+        
+      } else{
+        yScale.domain([0,35])
+      }
+      update_axis()
+      
+      
+      d3.select("g#bar2").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[variable][year]))
+        .attr("height", d => innerHeight - yScale(d[variable][year]))
+        
+      d3.select("text#bar2")
+        .text(variable)
+    })
+    
+    //update axes
+    
+    function update_axis(){
+      svg.select(".yAxis")
+          .transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .call(yAxis);
+      d3.select("g#bar1").selectAll("rect")
+        .transition()
+        .duration(1000)
+        .attr("y", d => yScale(d[year]))
+        .attr("height", d => innerHeight - yScale(d[year]))
+    }
+      
+    // show unemployment rates
+    d3.select("div#show")
+          .selectAll("input")
+          .on("click", function() {
+            show = d3.select(this).node().value
+            
+            if(show == 1){
+              d3.select("g#bar1").selectAll("rect#country")
+                .transition()
+                .duration(1000)
+                .attr("fill", "green")
+            } else{
+              d3.select("g#bar1").selectAll("rect#country")
+                .transition()
+                .duration(1000)
+                .attr("fill", "white")
+            }
+      })
+    
+  //
+  var svg_circ = d3.select("svg")
+        .append("g")
+        .attr("class","cir")
+        .selectAll("circle")
+        .data([160, 230, 298, 367, 436])
+        .enter()
+        .append("circle")
+        .attr("cx", d=>d)
+        .attr("cy", 400)
+        .attr("r", 6)
+        .attr("fill", "red")
+        
+  var drag_handler = d3.drag()
+    .on("drag", function(d) {
+          d3.select(this)
+            .attr("cy", d.y = d3.event.y)
+            }) 
+            
+  drag_handler(svg_circ)
+  </script>
+</script>
+
+<!--chapter:end:06-interactive.Rmd-->
+
+```{r include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+# Conclusion
+
+In summary, we look into matrices related to the job market, specifically, unemployment rate and labor participation rate, through perspectives of population structure, economic factors, and educations, and try to identify characteristics that separate developed countries and developing countries. We started by defining 12,000 dollar GDP to be the cut of these two developing states. Looking into the population structure by age, we can observe that developing countries have the potential to have a growing size of available-to-work population, while developed countries are less advantageous since they have larger proportion of older people. If we separate the population by gender, one unanimity across all countries is the higher labor participation rate of male than that of female, and the gap is stunning for countries like Japan and India. Our exploration also confirms that higher level of education as well as higher literacy rate is associated with higher rate of employment across all countries. As you can probably image, the employment rate for high level of education is more steady across all years, more turbulent for lower level especially in developing countries. When we put this issue to a larger scale and look into it through the lens of world economy, we assumed that higher imports or lower exports meant negative correlation with employment for reasons like out souring. However, we observed that the labor force contribution maintains at a consistent level across years while the imports have ups and down, therefore, no obvious association. By exploring categories of import/export product, we found that high technology exports are positively correlated with labor participation rate. Based on the result, some patterns such as gender gaps are shared across all countries, but the degree of obviousness of a particular pattern could vary between countries. No particular pattern can separate developed countries from developing countries, which reassures the complexity of the issue and uniqueness of the situation faced by different countries. 
+
+<!--chapter:end:07-conclusion.Rmd-->
+
