@@ -24,7 +24,7 @@
 <meta name="author" content="Haoyu Liu, Yue Wang, James Ding" />
 
 
-<meta name="date" content="2020-12-12" />
+<meta name="date" content="2020-12-17" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -115,9 +115,11 @@
             <section class="normal" id="section-">
 <div id="missing-values" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Missing values</h1>
-<p>Since countries have different priorities when gethering and reporting employment data, there are a lot of missing values in the dataset.</p>
-<pre><code>## 锘緾ountry.Name    Country.Code     Series.Name     Series.Code  X2012..YR2012.  X2013..YR2013.  X2014..YR2014.  X2015..YR2015.  X2016..YR2016. 
-##               0               0               0               0             210             195             214             211             275</code></pre>
+<p>Since countries have different priorities when gathering and reporting employment data, there are a lot of missing values in the dataset.</p>
+<pre><code>##   Country.Name   Country.Code    Series.Name    Series.Code X2012..YR2012. X2013..YR2013. X2014..YR2014. 
+##              0              0              0              0            210            195            214 
+## X2015..YR2015. X2016..YR2016. 
+##            211            275</code></pre>
 <p>Understandably, the dataset does not have missing data regarding the country’s name or the names of the factor (series) being measured. Furthermore, it seems that yearly the amount of missing data is around 210. Looking at the data, much of the missing data is not reported for all 5 years, which results in the consistent number of missing values. However, in 2013 the amount of missing data seemed to be lower at 195, and in 2016 the amount of missing data was much higher at 275.</p>
 <p><img src="finalproj_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>As shown above, for the vast majority of the rows, there are 0 missing values. This makes sense, as usually if the country reports the data in one year it’ll usually continue to report the data for every year. The next most common value seems to be 5, which means that the country simply does not report that data. The interesting values are 1 - 4, which means that the data was reported for some but not all of the years.</p>
