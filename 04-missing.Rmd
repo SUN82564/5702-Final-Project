@@ -4,8 +4,7 @@
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(naniar)
-data <- read.csv("Data_Extract_From_Jobs.csv")
-data <- data %>% replace_with_na_all(condition = ~.x == "..")
+data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
 data <- data %>% filter(row_number() <= n() - 5)
 names(data)[1] <- "Country.Name"
 ```
