@@ -358,7 +358,7 @@ We could see four cluster in above contour plot. One concentrated cluster is aro
 
 ### Employment rate among different eduaction level
 
-Diving deeper, we then compare how level of knowledge affects employment in developing and developed countries differently. We pick Brazil, Egypt, South Africa, USA and UK to do this comparison (The reason that we are not using China and Japan as our previous parts is that China and Japan are missing data both from year and education level). Among these countries, Brazil, Egypt and South Africa are developing countries, while UK and USA are developed countries. We will classify education into three levels, which is basic, intermediate, and advanced. Basic level is defined as schooling leads to basic reading, writing and mathematics skills. Intermediate level education refers to...Advance level education means all levels of colleges or universities and higher institutes.
+Diving deeper, we then compare how level of knowledge affects employment in developing and developed countries differently. We pick Brazil, Egypt, South Africa, USA and UK to do this comparison (The reason that we are not using China and Japan as we did in our previous parts is that China and Japan are missing data both from year and education level). Among these countries, Brazil, Egypt and South Africa are developing countries, while UK and USA are developed countries. We will classify education into three levels, which is basic, intermediate, and advanced. Basic level is defined as schooling leads to basic reading, writing and mathematics skills. Advance level education means all levels of colleges or universities and higher institutes.
 
 
 ```{r warning=FALSE, message=FALSE, message='hide', echo=FALSE, include=FALSE}
