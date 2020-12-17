@@ -58,6 +58,123 @@ ggplot(df_gdp,aes(x = YR2012, fct_reorder(Country,YR2012)))+
 
 Here is a part of plot showing the country's GDP per capita in year 2012. We sort these countries by using cleveland dot plot. Countries which GDP per capita are lower than 12,000 dollar such as Brazil and Mexico are developing countries and countries such as Poland and Hungary are developed countries.
 
+## Import and Export
+
+
+```{r  warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+library(tidyverse)
+data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
+cleaned_data <- na.omit(data)
+names(cleaned_data)[1] <- 'Country.Name'
+```
+
+Due to advancements in transportation and communications, international trade is becoming more and more common. As a result, imports and exports are key parts to any country's economy. With very few exceptions, all countries are somewhat reliant on trading with others. Therefore, it is important that we investigate the imports and exports of the selected countries. First, lets take a look at the imports and exports as a percentage of GDP from 2012 to 2016.
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+imports_exports <- cleaned_data %>% rename(
+  '2012' = `X2012..YR2012.`,
+  '2013' = `X2013..YR2013.`,
+  '2014' = `X2014..YR2014.`,
+  '2015' = `X2015..YR2015.`,
+  '2016' = `X2016..YR2016.`,
+) %>% 
+  pivot_longer('2012':'2016', names_to = 'Year') %>%
+  filter(Series.Name %in% c('Exports of goods and services (% of GDP)', 'Imports of goods and services (% of GDP)'))
+
+imports_exports$Series.Name <- fct_recode(imports_exports$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 'Exports' = 'Exports of goods and services (% of GDP)')
+
+imports_exports$Series.Name <- fct_relevel(imports_exports$Series.Name, 'Imports', 'Exports')
+
+imports_exports$Year <- as.factor(imports_exports$Year)
+```
+
+### Account for percent of GDP in developed and developing country 
+
+```{r warning=FALSE, echo=FALSE}
+imports_exports$value <- as.numeric(imports_exports$value)
+ggplot(imports_exports, aes(Year, value, group = Series.Name, color = Series.Name )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Country.Name) +
+  ggtitle("Imports and Exports as Percent of GDP") +
+  ylab("Percent of GDP") +
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+Generally, it looks like countries maintain a similar level of imports and exports every year. This makes sense, as countries would not want to incur a trade deficit by importing significantly more than they export. Furthermore, in general the amount of imports and exports worldwide are decreasing each year. The only exceptions are South Africa's exports, which seem to be trending upwards, and Japan's imports and exports trend upwards initially, but decrease in recent years. In addition, the three developed countries (China, Japan, and the United States) have a lower percentage of imports and exports than the other countries. This is surprising because these countries are known for importing and exporting many goods. Since the imports and exports are measured as a percentage of GDP, this likely means that these countries are able to produce much more domestically than they import and export.
+
+
+### How does imports and exports effect employment? 
+
+Some people worry that reliance on imports leads to higher unemployment, as some jobs end up outsourced to another country. To evaluate this claim, we will compare imports to the unemployment rate in each country, as well as the labor force participation rate.
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+imports_jobs <- cleaned_data %>% rename(
+  '2012' = X2012..YR2012.,
+  '2013' = X2013..YR2013.,
+  '2014' = X2014..YR2014.,
+  '2015' = X2015..YR2015.,
+  '2016' = X2016..YR2016.,
+) %>% 
+  pivot_longer('2012':'2016', names_to = 'Year') %>%
+  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)'))
+
+imports_jobs$Series.Name <- fct_recode(imports_jobs$Series.Name, 'Imports (% of GDP)' = 'Imports of goods and services (% of GDP)', 'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment Rate' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
+
+imports_jobs$Series.Name <- fct_relevel(imports_jobs$Series.Name, 'Imports (% of GDP)', 'Unemployment Rate', 'Labor Force Participation')
+
+imports_jobs$Year <- as.factor(imports_jobs$Year)
+```
+
+
+```{r warning=FALSE, echo=FALSE}
+ggplot(imports_jobs, aes(Year, value, group = Series.Name, color = Series.Name )) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Country.Name) +
+  ggtitle("Imports, Unemployment, and Labor Force Participation") +
+  ylab("Percent") +
+  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+It seems that the amount of imports has very little or no effect on the unemployment rate. In most of the countries, the unemployment rate doesn't change much while the imports experience notable change. In South Africa, the unemployment rate actually increases when the percent of imports decreases. Also note that the labor force participation rates for all of these countries are relatively stable, so the unemployment rate is not affected by the amount of people looking for work. The only country where there may be a relationship is the United States. This could mean there is something unique about the United States where there is a relationship between these two variables, or this may just be a coincidence.
+
+### Comparing import and export variables together 
+
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+spine_data <- cleaned_data %>% rename(
+  '2016' = X2016..YR2016.,
+) %>%
+  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Exports of goods and services (% of GDP)', 'Fuel exports (% of merchandise exports)', 'High-technology exports (% of manufactured exports)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)')) %>%
+ dplyr::select(Country.Name, Series.Name, '2016')
+
+spine_data$Series.Name <- fct_recode(spine_data$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 
+                                      'Exports' = 'Exports of goods and services (% of GDP)',
+                                      'Fuel Exports' = 'Fuel exports (% of merchandise exports)',
+                                      'Technology Exports' = 'High-technology exports (% of manufactured exports)',
+                                      'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)',
+                                      'Unemployment' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
+
+spine_data <- spine_data %>% pivot_wider(names_from = Series.Name, values_from = '2016')
+```
+
+```{r warning=FALSE, echo=FALSE, fig.width=8}
+library(GGally)
+ggparcoord(spine_data, columns = 2:7, scale = 'uniminmax', groupColumn = 1) +
+  ggtitle('Exports, Imports, and Labor') +
+  xlab("")+
+  ylab("Influence")+
+  theme(panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+There are a few interesting patterns we can see from this parallel coordinate plot. First, it seems that countries with low fuel exports have higher numbers of technology exports, while countries with low technology exports have high numbers of fuel exports. Notably, the countries with high fuel exports are developing countries, while the countries with high technology exports are developed countries. Also, countries with higher technology exports are countries with high labor force participation. One possible explanation for this is that the technology enables more people to get jobs i.e. people don't need to spend time vacuuming the household if they own a Roomba. Also, it seems that none of these variables really correlate with unemployment, as most of the countries have similar unemployment rates, (South Africa being the only outlier). 
+
+
+
 ##  Population and labor force
 
 ### Population structures between developing and developed countries
@@ -153,121 +270,6 @@ ggplot(df2, aes(`Years`, `Laborforce Participation Rate`, group = `Labor Force G
 
 If we take a deeper look into the contribution structure and compare the participation rates by gender, we can see from this graph that they vary across different countries by a lot. The specific gender group represents the proportion of working people in its gender group. While China, United States and South Africa show narrower gap between male and female, India followed by Japanhas the widest gap. From this observation, whether a country has a larger or smaller gap between participation rates of genders does not depend on its developing state. Though wide gender gap for Japan and India could be explained by some cultural reasons, we can observe that male across these countries and the world overall has higher proportion of working people. If we were to narrow this difference between genders, there would be definitely a lot of room to improve. 
 
-
-### Import and Export
-
-
-```{r  warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
-library(tidyverse)
-data <- read.csv("Data_Extract_From_Jobs.csv",na.strings='..')
-cleaned_data <- na.omit(data)
-names(cleaned_data)[1] <- 'Country.Name'
-```
-
-Due to advancements in transportation and communications, international trade is becoming more and more common. As a result, imports and exports are key parts to any country's economy. With very few exceptions, all countries are somewhat reliant on trading with others. Therefore, it is important that we investigate the imports and exports of the selected countries. First, lets take a look at the imports and exports as a percentage of GDP from 2012 to 2016.
-
-```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
-imports_exports <- cleaned_data %>% rename(
-  '2012' = `X2012..YR2012.`,
-  '2013' = `X2013..YR2013.`,
-  '2014' = `X2014..YR2014.`,
-  '2015' = `X2015..YR2015.`,
-  '2016' = `X2016..YR2016.`,
-) %>% 
-  pivot_longer('2012':'2016', names_to = 'Year') %>%
-  filter(Series.Name %in% c('Exports of goods and services (% of GDP)', 'Imports of goods and services (% of GDP)'))
-
-imports_exports$Series.Name <- fct_recode(imports_exports$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 'Exports' = 'Exports of goods and services (% of GDP)')
-
-imports_exports$Series.Name <- fct_relevel(imports_exports$Series.Name, 'Imports', 'Exports')
-
-imports_exports$Year <- as.factor(imports_exports$Year)
-```
-
-#### Account for percent of GDP in developed and developing country {-}
-
-```{r warning=FALSE, echo=FALSE}
-imports_exports$value <- as.numeric(imports_exports$value)
-ggplot(imports_exports, aes(Year, value, group = Series.Name, color = Series.Name )) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~Country.Name) +
-  ggtitle("Imports and Exports as Percent of GDP") +
-  ylab("Percent of GDP") +
-  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
-        plot.title = element_text(hjust = 0.5))
-```
-
-Generally, it looks like countries maintain a similar level of imports and exports every year. This makes sense, as countries would not want to incur a trade deficit by importing significantly more than they export. Furthermore, in general the amount of imports and exports worldwide are decreasing each year. The only exceptions are South Africa's exports, which seem to be trending upwards, and Japan's imports and exports trend upwards initially, but decrease in recent years. In addition, the three developed countries (China, Japan, and the United States) have a lower percentage of imports and exports than the other countries. This is surprising because these countries are known for importing and exporting many goods. Since the imports and exports are measured as a percentage of GDP, this likely means that these countries are able to produce much more domestically than they import and export.
-
-
-#### How does imports and exports effect employment? {-}
-
-Some people worry that reliance on imports leads to higher unemployment, as some jobs end up outsourced to another country. To evaluate this claim, we will compare imports to the unemployment rate in each country, as well as the labor force participation rate.
-
-```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
-imports_jobs <- cleaned_data %>% rename(
-  '2012' = X2012..YR2012.,
-  '2013' = X2013..YR2013.,
-  '2014' = X2014..YR2014.,
-  '2015' = X2015..YR2015.,
-  '2016' = X2016..YR2016.,
-) %>% 
-  pivot_longer('2012':'2016', names_to = 'Year') %>%
-  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)'))
-
-imports_jobs$Series.Name <- fct_recode(imports_jobs$Series.Name, 'Imports (% of GDP)' = 'Imports of goods and services (% of GDP)', 'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)', 'Unemployment Rate' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
-
-imports_jobs$Series.Name <- fct_relevel(imports_jobs$Series.Name, 'Imports (% of GDP)', 'Unemployment Rate', 'Labor Force Participation')
-
-imports_jobs$Year <- as.factor(imports_jobs$Year)
-```
-
-
-```{r warning=FALSE, echo=FALSE}
-ggplot(imports_jobs, aes(Year, value, group = Series.Name, color = Series.Name )) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~Country.Name) +
-  ggtitle("Imports, Unemployment, and Labor Force Participation") +
-  ylab("Percent") +
-  theme(axis.text.x = element_text(angle = 15), panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
-        plot.title = element_text(hjust = 0.5))
-```
-
-It seems that the amount of imports has very little or no effect on the unemployment rate. In most of the countries, the unemployment rate doesn't change much while the imports experience notable change. In South Africa, the unemployment rate actually increases when the percent of imports decreases. Also note that the labor force participation rates for all of these countries are relatively stable, so the unemployment rate is not affected by the amount of people looking for work. The only country where there may be a relationship is the United States. This could mean there is something unique about the United States where there is a relationship between these two variables, or this may just be a coincidence.
-
-#### Comparing import and export variables together {-}
-
-
-```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
-spine_data <- cleaned_data %>% rename(
-  '2016' = X2016..YR2016.,
-) %>%
-  filter(Series.Name %in% c('Imports of goods and services (% of GDP)', 'Exports of goods and services (% of GDP)', 'Fuel exports (% of merchandise exports)', 'High-technology exports (% of manufactured exports)', 'Unemployment, total (% of total labor force) (modeled ILO estimate)', 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)')) %>%
- dplyr::select(Country.Name, Series.Name, '2016')
-
-spine_data$Series.Name <- fct_recode(spine_data$Series.Name, 'Imports' = 'Imports of goods and services (% of GDP)', 
-                                      'Exports' = 'Exports of goods and services (% of GDP)',
-                                      'Fuel Exports' = 'Fuel exports (% of merchandise exports)',
-                                      'Technology Exports' = 'High-technology exports (% of manufactured exports)',
-                                      'Labor Force Participation' = 'Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)',
-                                      'Unemployment' = 'Unemployment, total (% of total labor force) (modeled ILO estimate)')
-
-spine_data <- spine_data %>% pivot_wider(names_from = Series.Name, values_from = '2016')
-```
-
-```{r warning=FALSE, echo=FALSE, fig.width=8}
-library(GGally)
-ggparcoord(spine_data, columns = 2:7, scale = 'uniminmax', groupColumn = 1) +
-  ggtitle('Exports, Imports, and Labor') +
-  xlab("")+
-  ylab("Influence")+
-  theme(panel.background = element_blank(), axis.line = element_line(color = "black"),panel.border =  element_blank(),
-        plot.title = element_text(hjust = 0.5))
-```
-
-There are a few interesting patterns we can see from this parallel coordinate plot. First, it seems that countries with low fuel exports have higher numbers of technology exports, while countries with low technology exports have high numbers of fuel exports. Notably, the countries with high fuel exports are developing countries, while the countries with high technology exports are developed countries. Also, countries with higher technology exports are countries with high labor force participation. One possible explanation for this is that the technology enables more people to get jobs i.e. people don't need to spend time vacuuming the household if they own a Roomba. Also, it seems that none of these variables really correlate with unemployment, as most of the countries have similar unemployment rates, (South Africa being the only outlier). 
 
 ## Employment and Education
 
