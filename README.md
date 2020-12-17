@@ -1,14 +1,4 @@
-This is a template for the EDAV final project. It is based on the template created with *File, New Project..., New Directory, Book Project using bookdown* in RStudio. 
+In this project, we took a look at employment statistics for developing and developed nations to see if there were any significant differences. Then, we tried to explore potential causes of these differences.
+
 *Here is the link to the book: https://sun82564.github.io/5702-Final-Project/*
 *This repo was initially generated from a bookdown template available here: https://github.com/jtr13/EDAVtemplate.*	
-
-### Demo Video	
-
-A demo video showing how to create a **bookdown book** following these similar instructions: http://bit.ly/fiveminutebookdown Note that this video uses a different template.
-
-### Additional features	
-
-Please consult the official guide to **bookdown**: https://bookdown.org/yihui/bookdown
-
-
-
