@@ -184,7 +184,7 @@ imports_exports$Series.Name <- fct_relevel(imports_exports$Series.Name, 'Imports
 imports_exports$Year <- as.factor(imports_exports$Year)
 ```
 
-#### Account for percent of GDP in developed and developing country
+#### Account for percent of GDP in developed and developing country {-}
 
 ```{r warning=FALSE, echo=FALSE}
 imports_exports$value <- as.numeric(imports_exports$value)
@@ -201,7 +201,7 @@ ggplot(imports_exports, aes(Year, value, group = Series.Name, color = Series.Nam
 Generally, it looks like countries maintain a similar level of imports and exports every year. This makes sense, as countries would not want to incur a trade deficit by importing significantly more than they export. Furthermore, in general the amount of imports and exports worldwide are decreasing each year. The only exceptions are South Africa's exports, which seem to be trending upwards, and Japan's imports and exports trend upwards initially, but decrease in recent years. In addition, the three developed countries (China, Japan, and the United States) have a lower percentage of imports and exports than the other countries. This is surprising because these countries are known for importing and exporting many goods. Since the imports and exports are measured as a percentage of GDP, this likely means that these countries are able to produce much more domestically than they import and export.
 
 
-#### How does imports and exports effect employment?
+#### How does imports and exports effect employment? {-}
 
 Some people worry that reliance on imports leads to higher unemployment, as some jobs end up outsourced to another country. To evaluate this claim, we will compare imports to the unemployment rate in each country, as well as the labor force participation rate.
 
@@ -237,7 +237,7 @@ ggplot(imports_jobs, aes(Year, value, group = Series.Name, color = Series.Name )
 
 It seems that the amount of imports has very little or no effect on the unemployment rate. In most of the countries, the unemployment rate doesn't change much while the imports experience notable change. In South Africa, the unemployment rate actually increases when the percent of imports decreases. Also note that the labor force participation rates for all of these countries are relatively stable, so the unemployment rate is not affected by the amount of people looking for work. The only country where there may be a relationship is the United States. This could mean there is something unique about the United States where there is a relationship between these two variables, or this may just be a coincidence.
 
-#### Comparing import and export variables together
+#### Comparing import and export variables together {-}
 
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
