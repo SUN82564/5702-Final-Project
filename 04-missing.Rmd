@@ -74,7 +74,7 @@ colSums(is.na(world_missing))
 In general, the world wide statistics are fairly consistent, with slightly more missing at 2016. It seems that the increase in missing values in 2016 is a world wide phenomenon for some reason.
 
 
-In our another file, we do a whole missing value checking. We only keep the value which are included in years, since all categorical varibles do not have missing value.
+In our another file, we do a whole missing value checking. We only keep the value which are included in years, since all categorical variables do not have missing value.
 ```{r}
 library(extracat)
 library(readr)
