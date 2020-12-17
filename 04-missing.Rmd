@@ -4,14 +4,13 @@
 ```{r error=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(naniar)
-library(extracat)
-library(readr)
-data = read.csv("Data_Extract_From_Jobs.csv")
+data <- read.csv("Data_Extract_From_Jobs.csv")
 data <- data %>% replace_with_na_all(condition = ~.x == "..")
 data <- data %>% filter(row_number() <= n() - 5)
+names(data)[1] <- "Country.Name"
 ```
 
-Since countries have different priorities when gethering and reporting employment data, there are a lot of missing values in the dataset.
+Since countries have different priorities when gathering and reporting employment data, there are a lot of missing values in the dataset.
 
 ```{r}
 colSums(is.na(data))
@@ -29,7 +28,7 @@ As shown above, for the vast majority of the rows, there are 0 missing values. T
 ```{r}
 ggplot(data, aes(x = missing)) +
   geom_bar() +
-  facet_wrap(~ Country.Code)
+  facet_wrap(~ `Country.Code`)
 ```
 
 
