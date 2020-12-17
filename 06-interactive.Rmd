@@ -39,7 +39,8 @@
     <input type="radio" name ="show" value =1 >&nbsp;Yes
 	  <input type="radio" name ="show" value =0 checked ='True'>&nbsp;No
   </div>
-
+  <script>
+  
   var w = 650;
   var h = 500;
   var margin = {top: 25, right: 200, bottom: 50, left: 50};
@@ -106,7 +107,6 @@
       
     }
     ];
-  
   var bar2data = [
         {
       "country": "World",
